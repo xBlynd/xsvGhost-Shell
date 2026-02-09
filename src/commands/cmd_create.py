@@ -1,59 +1,45 @@
 import sys
 import os
+import importlib
 from pathlib import Path
 
-# CONFIG
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-CUSTOM_DIR = PROJECT_ROOT / "src" / "commands" / "custom"
+# --- CONFIG ---
+# We point to where the CUSTOM commands live
+CUSTOM_DIR = Path(__file__).parent / "custom"
 
-def get_multiline_input():
-    print(" [?] Enter Code below.")
-    print(" [?] Type 'END' on a new line to finish.")
-    print("-" * 40)
-    lines = []
-    while True:
-        line = input()
-        if line.strip() == "END":
-            break
-        lines.append(line)
-    return "\n".join(lines)
-
-def create_command(name=None):
+def create_command_wizard(name=None):
+    """
+    Handles the creation of NEW scripts/tools (The 'Custom' stuff).
+    This logic lives HERE because 'creating a command' is this module's job.
+    """
     print("\n 🛠️  CREATE CUSTOM COMMAND")
     print(" " + "="*30)
 
-    # 1. Get Name
     if not name:
         name = input(" [?] Command Name (One word): ").lower().strip()
     
-    if not name:
-        print(" ❌ Name required.")
-        return
+    if not name: return
 
-    # Check for conflicts
     filename = f"cmd_{name}.py"
     filepath = CUSTOM_DIR / filename
     
     if filepath.exists():
-        print(f" ⚠️  Warning: '{name}' already exists in Custom.")
-        if input("     Overwrite? (y/n): ").lower() != 'y':
-            return
+        print(f" ⚠️  Warning: '{name}' already exists.")
+        if input("     Overwrite? (y/n): ").lower() != 'y': return
 
-    # 2. Get Description
     desc = input(" [?] Description: ").strip()
 
-    # 3. Get Code
-    print("\n [?] Paste your Python code now.")
-    print("     (No need to write 'def run(args):', just paste the logic).")
-    user_code = get_multiline_input()
-
-    # 4. Wrap & Write
-    # We indent the user's code to fit inside the run() function
-    indented_code = "\n    ".join(user_code.splitlines())
+    print("\n [?] Paste Python code. Type 'END' or 'DONE' on new line to finish.")
+    lines = []
+    while True:
+        line = input()
+        if line.strip().upper() in ["END", "DONE"]: break
+        lines.append(line)
+    
+    user_code = "\n    ".join(lines)
     
     file_content = f'''import sys
 import os
-import platform
 
 # Module: {name}
 # Description: {desc}
@@ -62,7 +48,7 @@ def run(args):
     print("\\n🚀 Running Custom Command: {name}...")
     
     # --- USER CODE START ---
-    {indented_code}
+    {user_code}
     # --- USER CODE END ---
     
     print("\\n✅ {name} finished.")
@@ -70,17 +56,70 @@ def run(args):
 
     # Ensure dir exists
     CUSTOM_DIR.mkdir(parents=True, exist_ok=True)
-    # Ensure __init__.py exists
-    (CUSTOM_DIR / "__init__.py").touch()
+    if not (CUSTOM_DIR / "__init__.py").exists():
+        (CUSTOM_DIR / "__init__.py").touch()
 
     with open(filepath, "w", encoding="utf-8") as f:
         f.write(file_content)
 
-    print("\n" + "="*30)
-    print(f" ✅ SUCCESS: Created 'src/commands/custom/{filename}'")
-    print(f" 🚀 Usage: Type '{name}' in the shell to run it.")
+    print(f" ✅ Created command '{name}' in src/commands/custom/")
 
 def run(args):
-    # Determine if name was passed in args
-    name = args[0] if args else None
-    create_command(name)
+    """
+    The Master Dispatcher.
+    Routes 'todo' to the Todo Module, 'journal' to the Journal Module.
+    """
+    if not args:
+        print("\n✨ CREATION STATION")
+        print("Usage:")
+        print("  create command <name>   -> Build a new tool (Wizard)")
+        print("  create todo <text>      -> Dispatches to Core Todo Module")
+        print("  create journal <text>   -> Dispatches to Core Journal Module")
+        return
+
+    category = args[0].lower()
+    payload = args[1:] # The rest of the words
+
+    # --- ROUTE 1: NEW COMMANDS (Handled Here) ---
+    if category in ["command", "script", "module"]:
+        name = payload[0] if payload else None
+        create_command_wizard(name)
+
+    # --- ROUTE 2: CORE TODO MODULE ---
+    elif category in ["todo", "task"]:
+        try:
+            # We import the CORE module dynamically
+            # This ensures we use the EXACT logic defined in cmd_todo.py
+            todo_module = importlib.import_module("src.commands.cmd_todo")
+            
+            # We construct the arguments as if the user typed 'todo add ...'
+            # If payload is ["Buy", "Milk"], we send ["add", "Buy", "Milk"]
+            dispatch_args = ["add"] + payload
+            
+            print(f" ↪️  Dispatching to Core Todo Module...")
+            todo_module.run(dispatch_args)
+            
+        except ModuleNotFoundError:
+            print(" ❌ Error: Core 'cmd_todo.py' not found!")
+        except Exception as e:
+            print(f" ❌ Dispatch Error: {e}")
+
+    # --- ROUTE 3: CORE JOURNAL MODULE ---
+    elif category in ["journal", "note", "log"]:
+        try:
+            journal_module = importlib.import_module("src.commands.cmd_journal")
+            
+            # Construct args: 'journal add ...'
+            dispatch_args = ["add"] + payload
+            
+            print(f" ↪️  Dispatching to Core Journal Module...")
+            journal_module.run(dispatch_args)
+            
+        except ModuleNotFoundError:
+            print(" ❌ Error: Core 'cmd_journal.py' not found!")
+        except Exception as e:
+            print(f" ❌ Dispatch Error: {e}")
+
+    else:
+        print(f" ❌ Unknown category '{category}'.")
+        print("    Supported: command, todo, journal")
