@@ -1,52 +1,40 @@
 import sys
 from pathlib import Path
 
-# Add 'src' to python path
+# Add src to path
 sys.path.append(str(Path(__file__).parent.parent))
 
 from src.core.host_bridge import HostBridge
-from src.commands import cmd_journal
+from src.commands import cmd_journal, cmd_todo
 
 def main():
-    # 1. Grab arguments
     if len(sys.argv) < 2:
         HostBridge.clear_screen()
-        print("xsvCommandCenter [v0.2-Alpha]")
-        print("-----------------------------")
-        print("Usage: xsv <command> [args]")
-        print("   host info          - Show System Stats")
-        print("   host launch <file> - Open a file")
-        print("   journal <text>     - Log an entry")
-        print("   journal list       - See past logs")
+        print("xsvCommandCenter [v2.0-API]")
+        print("---------------------------")
+        print("Commands:")
+        print("  host [info|launch]   - OS Control")
+        print("  journal [add|view]   - Daily Logs")
+        print("  todo [add|list|done] - Task Manager")
         return
 
-    command = sys.argv[1].lower()
+    cmd = sys.argv[1].lower()
     args = sys.argv[2:]
 
-    # 2. Command Routing
-    if command == "host":
-        if not args:
-            print("Usage: xsv host [info|launch]")
-            return
-        
-        subcmd = args[0].lower()
-        if subcmd == "info":
-            info = HostBridge.get_system_info()
-            print(f"🖥️  System: {info['os']} {info['release']}")
-            print(f"👤 User:   {info['user']}")
-            if info['is_wsl']: print("🐧 Mode:   WSL")
-        
-        elif subcmd == "launch":
-            if len(args) < 2:
-                print("Error: Missing file path.")
-            else:
-                HostBridge.launch(args[1])
-
-    elif command == "journal":
+    if cmd == "host":
+        if not args: return
+        sub = args[0]
+        if sub == "info": print(HostBridge.get_system_info())
+        elif sub == "launch": HostBridge.launch(args[1])
+    
+    elif cmd == "journal":
         cmd_journal.run(args)
     
+    elif cmd == "todo":
+        cmd_todo.run(args)
+        
     else:
-        print(f"❌ Unknown command: {command}")
+        print(f"❌ Unknown command: {cmd}")
 
 if __name__ == "__main__":
     main()
