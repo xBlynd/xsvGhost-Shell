@@ -12,7 +12,6 @@ from src.core.host_engine import HostEngine
 from src.commands import cmd_launcher
 
 # --- CONFIGURATION ---
-# TODO: Move this to data/config/secrets.json in next update
 DEFAULT_USER = "admin"
 DEFAULT_PASS = "admin"
 
@@ -22,7 +21,6 @@ def login():
     print("🔒 xsvCommandCenter | SECURE SESSION")
     print("-" * 35)
     
-    # Simple loop
     while True:
         try:
             u = input("User: ")
@@ -31,18 +29,7 @@ def login():
                 return True
             print("❌ Access Denied.")
         except KeyboardInterrupt:
-            print("\nUse Ctrl+C again to force quit.")
             return False
-
-def get_xsv_modules():
-    """Scans src/commands for cmd_*.py"""
-    cmd_dir = Path(__file__).parent
-    cmds = []
-    for f in cmd_dir.glob("cmd_*.py"):
-        name = f.stem.replace("cmd_", "")
-        if name not in ["launcher", "shell", "__init__"]:
-            cmds.append(name)
-    return cmds
 
 def run(args):
     # 1. AUTHENTICATE
@@ -54,30 +41,29 @@ def run(args):
     username = os.getlogin()
     print(f"\n👻 GHOST SHELL ONLINE")
     print(f"   Target: {username}@{hostname}")
-    print(f"   Core:   Active")
     print("-" * 40)
-    print("Type 'help' for options. Type 'exit' to disconnect.\n")
+    print("Type 'help' for options. Type 'exit' to disconnect.")
+    print("Type 'sh' or 'cmd' to drop into raw host terminal.\n")
 
     # 3. INTERACTIVE LOOP
     while True:
         try:
-            # Dynamic Prompt
             cwd = os.getcwd()
-            # Shorten path if too long
-            if len(cwd) > 30: cwd = "..." + cwd[-30:]
+            # Shorten path for display
+            display_cwd = cwd
+            if len(cwd) > 30: display_cwd = "..." + cwd[-30:]
             
-            prompt = f"xsv@{hostname} [{cwd}] > "
+            prompt = f"xsv@{hostname} [{display_cwd}] > "
             user_input = input(prompt).strip()
             
             if not user_input: continue
 
-            # Parse input
             parts = shlex.split(user_input)
             cmd = parts[0].lower()
             cmd_args = parts[1:]
 
-            # --- A. SHELL COMMANDS ---
-            if cmd in ["exit", "quit", "logout"]:
+            # --- A. SHELL CONTROLS ---
+            if cmd in ["exit", "quit"]:
                 print("🔌 Disconnecting...")
                 break
             
@@ -91,36 +77,65 @@ def run(args):
                 except Exception as e: print(f"❌ {e}")
                 continue
 
-            # --- B. XSV MODULES (host, journal, todo) ---
-            # We look for cmd_{cmd}.py
-            module_name = f"src.commands.cmd_{cmd}"
-            try:
-                module = importlib.import_module(module_name)
-                # Success! It's a module. Run it.
-                module.run(cmd_args)
+            # --- B. ESCAPE HATCHES (The "Safety Net") ---
+            
+            # MODE 2: Force Host Execution ('exec ping')
+            if cmd == "exec":
+                if not cmd_args:
+                    print("⚠️ Usage: exec <command>")
+                    continue
+                # Join the rest of the arguments exactly as typed
+                full_cmd = " ".join(cmd_args)
+                print(f"Executing on Host: {full_cmd}")
+                try:
+                    subprocess.run(full_cmd, shell=True)
+                except Exception as e:
+                    print(f"❌ Execution failed: {e}")
                 continue
-            except ModuleNotFoundError:
-                pass # Not a module, keep checking
 
-            # --- C. MAGIC COMMANDS (commands.json) ---
-            launcher = cmd_launcher.Launcher()
-            if launcher.run(cmd):
+            # MODE 3: Drop to Raw Shell ('sh' or 'cmd')
+            if cmd in ["sh", "cmd", "bash", "powershell"]:
+                print(f"⚠️  Dropping to Host Shell ({cmd})...")
+                print("   Type 'exit' to return to Ghost Shell.")
+                try:
+                    # Windows prefers 'cmd', Linux 'bash'
+                    shell_cmd = "cmd" if os.name == 'nt' else "bash"
+                    # If they specifically asked for powershell, give it to them
+                    if cmd == "powershell": shell_cmd = "powershell"
+                    
+                    subprocess.call(shell_cmd, shell=True)
+                except Exception as e:
+                    print(f"❌ Failed to launch shell: {e}")
+                
+                print("\n👻 Welcome back to Ghost Shell.")
                 continue
 
-            # --- D. ALIASES FOR CONVENIENCE ---
-            # You asked to just type 'info' instead of 'host info'
+            # --- C. ALIASES (Your "Shortcuts") ---
             if cmd == "info":
-                # Route 'info' directly to 'host info'
                 import src.commands.cmd_host as h
                 h.run(["info"])
                 continue
-                
+            
             if cmd == "ps":
                 import src.commands.cmd_host as h
                 h.run(["ps"])
                 continue
 
-            # --- E. HOST OS COMMANDS ---
+            # --- D. MODULE ROUTING (Mode 1: The "Smart" Way) ---
+            try:
+                # Tries to find src/commands/cmd_{cmd}.py
+                module = importlib.import_module(f"src.commands.cmd_{cmd}")
+                module.run(cmd_args)
+                continue
+            except ModuleNotFoundError:
+                pass 
+
+            # --- E. MAGIC COMMANDS ---
+            launcher = cmd_launcher.Launcher()
+            if launcher.run(cmd):
+                continue
+
+            # --- F. SYSTEM FALLBACK (Lazy Mode) ---
             # If nothing else matches, run it as a Windows/Linux command
             try:
                 subprocess.run(user_input, shell=True)
