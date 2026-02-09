@@ -1,3 +1,15 @@
+import os
+import shutil
+from pathlib import Path
+
+# --- CONFIGURATION ---
+PROJECT_ROOT = Path(".")
+SRC = PROJECT_ROOT / "src"
+CORE = SRC / "core"
+CMDS = SRC / "commands"
+
+# --- THE FINAL CODE (Universal Host + Alias Fix) ---
+HOST_CODE = r"""
 import os, sys, platform, subprocess, shutil, socket, json
 from pathlib import Path
 
@@ -98,3 +110,68 @@ class HostBridge:
                         if len(p) >= 2: info["Disks"].append({"FriendlyName": p[0], "Size": p[1]})
             except Exception as e: info["Error"] = str(e)
         return info
+"""
+
+ALIAS_CODE = r"""
+import sys, shutil, os
+from pathlib import Path
+
+def run(args):
+    if not args:
+        print("Usage: xsv alias [add|list|nuke] <name>")
+        return
+    cmd = args[0].lower()
+    root = Path(__file__).parent.parent.parent
+    
+    if cmd == "add":
+        if len(args) < 2: return
+        new_name = args[1]
+        src = root / "xsv.bat"
+        tgt = root / f"{new_name}.bat"
+        if src.exists():
+            shutil.copy(src, tgt)
+            print(f"✅ Alias '{new_name}' created.")
+            
+    elif cmd == "list":
+        print("\n🔗 Aliases:")
+        for f in root.glob("*.bat"):
+            if f.name not in ["setup_xsv.bat", "setup_path.bat", "xsv.bat"]: print(f"  🔹 {f.stem}")
+            
+    elif cmd == "nuke":
+        if len(args) < 2: return
+        tgt = root / f"{args[1]}.bat"
+        if tgt.exists(): 
+            os.remove(tgt)
+            print(f"🗑️ Nuked {args[1]}")
+    else:
+        print("Unknown alias command.")
+"""
+
+def clean_house():
+    print("🧹 Starting Deep Clean...")
+    
+    # 1. DELETE TEMP SCRIPTS
+    junk = [
+        "upgrade_alias.py", "upgrade_host_deep.py", "upgrade_universal.py", 
+        "upgrade_universal_v2.py", "fix_launcher.py", "refactor_v2.py",
+        "refactor_final.py", "build_specs.py", "setup_xsv.bat"
+    ]
+    for f in junk:
+        p = PROJECT_ROOT / f
+        if p.exists():
+            os.remove(p)
+            print(f"🔥 Deleted junk: {f}")
+
+    # 2. APPLY FINAL CODE
+    print("🛠️  Applying Final Core Updates...")
+    with open(CORE / "host_bridge.py", "w", encoding="utf-8") as f:
+        f.write(HOST_CODE.strip())
+    
+    with open(CMDS / "cmd_alias.py", "w", encoding="utf-8") as f:
+        f.write(ALIAS_CODE.strip())
+
+    print("\n✅ CLEANUP COMPLETE. Your folder is tidy.")
+    print("   You should now only see: xsv.bat, setup_path.ps1, src/, data/, library/")
+
+if __name__ == "__main__":
+    clean_house()
