@@ -1,0 +1,3049 @@
+=== PROJECT STRUCTURE ===
+./
+    .gitignore
+    README.md
+    TODO.md
+    LAUNCH.bat
+    DEVELOPER.md
+    README_CORE.md
+    pack_context.py
+    desktop.ini
+    specs/
+        Architecture.md
+        system_structure.md
+        00_MANIFEST.md
+        01_PLATFORM_RULES.md
+        02_HOST.md
+        03_VAULT.md
+        04_WEB.md
+        desktop.ini
+    src/
+        main.py
+        __init__.py
+        desktop.ini
+        commands/
+            cmd_journal.py
+            cmd_todo.py
+            cmd_host.py
+            cmd_alias.py
+            cmd_launcher.py
+            cmd_help.py
+            cmd_shell.py
+            cmd_setup.py
+            cmd_settings.py
+            cmd_create.py
+            cmd_edit.py
+            desktop.ini
+            custom/
+                __init__.py
+                cmd_scare.py
+                desktop.ini
+        core/
+            host_bridge.py
+            vault_api.py
+            info_engine.py
+            host_engine.py
+            desktop.ini
+    data/
+        desktop.ini
+        vault/
+            desktop.ini
+            journal/
+                2026-02-09.md
+                desktop.ini
+            notes/
+                desktop.ini
+            lists/
+                todo.md
+                desktop.ini
+        config/
+            commands.json
+            desktop.ini
+    tests/
+        desktop.ini
+    library/
+        matrix_prank.py
+        desktop.ini
+
+
+=== FILE CONTENTS ===
+
+
+==================================================
+FILE: .\.gitignore
+==================================================
+# --- IGNORE PRIVATE DATA ---
+data/vault/
+data/logs/
+data/config/secrets.json
+__pycache__/
+*.pyc
+
+# --- BUT KEEP THE SKELETON ---
+!data/config/commands.json
+
+==================================================
+FILE: .\README.md
+==================================================
+# 🌌 xsvCommandCenter: The Digital Life Container
+
+**Version:** ~~5.4-Granular~~ **6.0-Ghost**
+**Status:** Alpha / Active Development
+**Philosophy:** "One Stick, Any Computer, Surgical Precision."
+
+---
+
+## 🎯 The Grand Vision
+This is not just a script. It is a **Portable Operating Environment**.
+It is designed to be the single repository for my entire digital life—my brain, my tools, my games, and my work—capable of running on **any** machine (Windows, Linux, ParrotOS, MacOS) instantly.
+
+### The "Split-Brain" Architecture
+1.  **The Brain (GitHub):** The Logic, Engines, and Public Scripts. (Syncs everywhere).
+2.  **The Soul (USB/Cloud):** My Journals, Passwords, Device States, and Private Configs. (Never touches public Git).
+
+---
+
+## 🏗️ System Architecture
+
+### 1. The Core (`src/core/`)
+* **`InfoEngine`**: The Detective. Identifies Host OS, Hardware, and Cloud Drives.
+* **`HostEngine`**: The Worker. Handles file ops, process killing, and launching.
+* ~~**`DependencyEngine` (Planned)**~~ *Pivoted to `cmd_dev.py` (The Hacker Kit).*
+
+### 2. The Dynamic Router (`src/main.py`)
+* **Auto-Discovery**: Automatically finds and loads any tool dropped into `src/commands/`.
+* **NEW: Custom Partition**:
+    * `src/commands/` -> **System Tools** (Shell, Setup, Settings).
+    * `src/commands/custom/` -> **User Tools** (Scare, Games, AI).
+
+### 3. The Interface
+* **Ghost Shell (`cmd_shell.py`)**: A persistent, interactive terminal (`xsv@HOST >`).
+    * **Features:** Hot Reload, Three-Mode Execution (Smart/Exec/Raw), and Threading support.
+* ~~**GUI Dashboard (Planned)**~~ *Moved to Phase 5 Roadmap.*
+
+---
+
+## 🔮 The Module Roadmap (Granular & Smart)
+
+### 🛠️ The "Ghost" Utilities (LIVE)
+* **The Factory (`cmd_create.py`)**:
+    * **Dispatcher Logic**: `create todo "Buy milk"` -> Routes to Todo Module.
+    * **Wizard**: `create command scare` -> Auto-generates Python boilerplate.
+* **The Editor (`cmd_edit.py`)**:
+    * Smart-detects VS Code, Notepad, or Nano to edit scripts on the fly.
+* **The Hot-Swap (`reload`)**:
+    * Updates code in memory without restarting the shell.
+
+### 🛠️ Development (`cmd_dev.py`)
+* **Granular Installation**:
+    * `dev install vscode`: Installs VS Code + My Extensions (checks OS first).
+    * `dev install all`: Installs the full suite (Git, VS Code, Python, Node).
+* **Environment Sync**:
+    * `dev sync`: Pulls my latest VS Code settings/keybindings from Vault.
+
+### 🌐 Web Server (`cmd_web.py`)
+* **Smart Launch**:
+    * `web serve`: Instantly hosts current folder on LAN.
+
+### 🎮 Gaming (`cmd_gameserver.py`)
+* **Game Server Deployer**:
+    * One-click install/start for: Minecraft, Battlefield, Ark.
+    * **Storage**: Servers live in `data/servers/`, NOT in the source code.
+
+### 🕵️ Cybersecurity & Diagnostics
+* **The "Analyst" (`cmd_scan.py`)**:
+    * Deep diagnostics: Event Logs, Network Traffic.
+* **"The Cleaner" (`cmd_clean.py`)**:
+    * Wipes temp files, clears logs, removes traces.
+
+---
+
+## 📂 Data Strategy
+
+| Zone | Content | Storage Location |
+| :--- | :--- | :--- |
+| **SYSTEM** | Core Logic, Router, Base Modules | `src/commands/` |
+| **USER** | Custom Scripts, Pranks, Tools | `src/commands/custom/` |
+| **LIBRARY** | 3rd Party Scripts (Bash/PS1) | `library/` (Linked via JSON) |
+| **DATA** | Game Servers, Vault, Databases | `data/` |
+
+---
+
+## 🚀 Usage Guide
+1.  **Plug in USB.**
+2.  **Double-click `LAUNCH.bat`.**
+3.  **Login** (Secure Shell opens).
+4.  **Command:** `setup` (Installs shortcuts/path).
+5.  **Command:** `create command mytool` (Builds a new tool).
+
+==================================================
+FILE: .\TODO.md
+==================================================
+# 📋 Project Worklist
+
+## 🔥 Phase 1: The Foundation (Current)
+- [x] **Modular Architecture:** Core vs. Commands.
+- [x] **Dynamic Router:** Auto-loads modules.
+- [x] **Hardware Detective:** `InfoEngine` scans CPU/RAM.
+- [x] **Help System:** Dynamic menu.
+- [ ] **Ghost Shell:** Interactive terminal (`xsv@HOST >`).
+- [ ] **Launchers:** `LAUNCH.bat` (Windows).
+
+## 🚧 Phase 2: The Toolbelt (Essential Modules)
+- [ ] **`cmd_dev.py`**:
+    - [ ] Add `install vscode` (Windows/Linux detection).
+    - [ ] Add `install node` / `install python`.
+    - [ ] Add `sync settings` (VS Code extensions).
+- [ ] **`cmd_web.py`**:
+    - [ ] Add `serve` (Python `http.server` wrapper).
+    - [ ] Add `project init` (Download HTML5 boilerplate).
+- [ ] **`cmd_clean.py`**:
+    - [ ] Temp file wiper.
+    - [ ] Browser cache cleaner.
+
+## 🔭 Phase 3: Expansion (Advanced)
+- [ ] **`cmd_gameserver.py`**: Minecraft/Ark installers.
+- [ ] **`cmd_ai.py`**: Gemini API hook.
+- [ ] **ParrotOS Support**: Verify all scripts on Linux.
+- [ ] **Dashboard**: Future GUI skin.
+
+==================================================
+FILE: .\LAUNCH.bat
+==================================================
+@echo off
+title xsvCommandCenter [GHOST SHELL]
+color 0a
+cls
+
+:: Set Path to current folder so Python can find src/
+set "PYTHONPATH=%~dp0"
+
+echo [*] Initializing Core...
+echo [*] Loading Modules...
+echo.
+
+:: Run the Shell Command
+python "%~dp0src\main.py" shell
+
+:: If it crashes, keep window open to see error
+if %errorlevel% neq 0 pause
+
+==================================================
+FILE: .\DEVELOPER.md
+==================================================
+# ( The Manual )
+
+**Changes:** Updated the Routing Logic to show the priority list (System -> Custom -> Library), and added the new "Threading" rule for GUI apps (like the Scare prank).
+
+```markdown
+# 🛠️ xsvCommandCenter Developer Guide
+
+**Target Audience:** Hackers, Developers, and Future Ian.
+**Goal:** Expand the system without breaking the Core.
+
+---
+
+## 👻 1. The Ghost Shell Architecture
+The Ghost Shell (`src/commands/cmd_shell.py`) is an **Infinite Loop** that acts as a traffic controller. It does not "know" commands; it routes them.
+
+### The Routing Logic (Order of Operations)
+When you type a command (e.g., `ping`), the Shell follows this strict priority:
+
+1.  **Hardcoded Aliases:** Checks `cmd_shell.py` (exit, clear, exec, reload).
+2.  **System Modules:** Checks `src/commands/cmd_ping.py`.
+3.  **Custom Modules:** Checks `src/commands/custom/cmd_ping.py` (Your Playground).
+4.  **Magic Commands (JSON):** Checks `data/config/commands.json` (Links to `library/`).
+5.  **System Fallback:** If nothing matches, it sends the text to the Host OS.
+
+### The Three Modes of Execution
+| Mode | Syntax | Description | Use Case |
+| :--- | :--- | :--- | :--- |
+| **Smart** | `ping google.com` | Tries Internal -> Magic -> System. | 99% of daily use. |
+| **Forced** | `exec ping ...` | Bypasses xsv entirely. Forces Host OS to run it. | Testing or conflicts. |
+| **Raw** | `cmd` / `sh` | Drops you into the actual OS terminal. | Complex pipes (`|`), heavy admin work. |
+
+---
+
+## 🧩 2. How to Add Features (The New Way)
+
+### Method A: The Wizard (Recommended)
+Don't write files manually. Use the engine.
+1.  **Type:** `create command mytool`
+2.  **Enter Description:** "My cool tool"
+3.  **Paste Code:** Paste your Python logic.
+4.  **Result:** Auto-generates `src/commands/custom/cmd_mytool.py` with proper boilerplate.
+
+### Method B: The Library Link (Scripts)
+**Best for:** Running a PowerShell/Bash script you found online.
+1.  Drop the script into `library/` (e.g., `library/matrix.py`).
+2.  Open `data/config/commands.json`.
+3.  Add it:
+    ```json
+    "matrix": {
+        "type": "script",
+        "path": "library/matrix.py",
+        "description": "The Matrix Effect"
+    }
+    ```
+
+---
+
+## ⚠️ Coding Guidelines (Critical)
+
+### 1. GUI Tools Must Be Threaded
+If your command opens a window (like `tkinter` or `pygame`), you **MUST** run it in a separate thread, or it will freeze the Shell.
+
+**Bad Code:**
+```python
+root = tk.Tk()
+root.mainloop() # <--- FREEZES SHELL HERE
+
+```
+
+**Good Code:**
+
+```python
+import threading
+def popup():
+    root = tk.Tk()
+    root.mainloop()
+
+t = threading.Thread(target=popup, daemon=True)
+t.start() # <--- Shell stays alive
+
+```
+
+### 2. File Paths
+
+Never hardcode `C:\Users`. Always use the `Path` library relative to `__file__`.
+
+```python
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+
+```
+
+```
+
+---
+
+### 3. `TODO.md` ( The Worklist )
+**Changes:** Massive update. Checked off the entire Phase 1. Added the Pivot explanation.
+
+```markdown
+# 📋 Project Worklist
+
+## 🔥 Phase 1: The Foundation (COMPLETED)
+- [x] **Modular Architecture:** Core (`src/commands`) vs. Custom (`src/commands/custom`).
+- [x] **Dynamic Router:** Auto-loads modules from both locations.
+- [x] **Hardware Detective:** `InfoEngine` scans CPU/RAM.
+- [x] **Ghost Shell:** Interactive terminal (`xsv@HOST >`) with sticky headers.
+- [x] **Launchers:** `LAUNCH.bat` (Windows).
+- [x] **The Creator:** `create` command with Dispatcher Pattern (routes to Todo/Journal).
+- [x] **The Editor:** `edit` command (detects VS Code/Notepad).
+- [x] **Hot Reload:** `reload` command updates code instantly.
+- [x] **Safety:** `exec` and `sh` escape hatches.
+
+## 🚧 Phase 2: The Toolbelt (Essential Modules)
+* **Current Focus: The Hacker Kit**
+- [ ] **`cmd_dev.py`**:
+    - [ ] Add `install vscode` (Windows/Linux detection).
+    - [ ] Add `install node` / `install python`.
+    - [ ] Add `sync settings` (VS Code extensions).
+- [ ] **`cmd_web.py`**:
+    - [ ] Add `serve` (Python `http.server` wrapper).
+    - [ ] Add `project init` (Download HTML5 boilerplate).
+- [ ] **`cmd_clean.py`**:
+    - [ ] Temp file wiper.
+    - [ ] Browser cache cleaner.
+
+## 🔭 Phase 3: Expansion (Advanced)
+- [ ] **`cmd_gameserver.py`**: Minecraft/Ark installers (Servers go to `data/servers`).
+- [ ] **`cmd_ai.py`**: Gemini API hook.
+- [ ] **ParrotOS Support**: Verify all scripts on Linux.
+- [ ] **Dashboard**: Future GUI skin.
+
+## 📜 Pivot Log (History)
+* *Pivoted `DependencyEngine` into `cmd_dev.py` for granular control.*
+* *Moved `INSTALL_THIS_PC.bat` logic into internal `setup` command.*
+* *Split `src/commands` to protect Core files from User scripts.*
+
+```
+
+
+
+==================================================
+FILE: .\README_CORE.md
+==================================================
+# ⚙️ xsvCommandCenter: The Core Mechanics
+
+**Warning:** This document describes the internal "Brain" and "Engine" of xsv.
+**Do not edit files in `src/core/` unless you are upgrading the OS architecture.**
+
+---
+
+## 🧠 1. The Brain: Dynamic Routing (`src/main.py`)
+The Brain is a "Traffic Controller." It does not know what commands exist until it runs.
+* **Startup:** It scans `src/commands/` for files starting with `cmd_`.
+* **Execution:**
+    1.  Receives `xsv [cmd] [args]`.
+    2.  Tries to `import src.commands.cmd_[cmd]`.
+    3.  If found -> Runs `.run(args)`.
+    4.  If not found -> Checks `data/config/commands.json`.
+* **Why this matters:** You can drop a file named `cmd_pizza.py` into the folder, and `xsv pizza` works instantly. No registration required.
+
+---
+
+## 🔧 2. The Engine: Hardware Abstraction (`src/core/`)
+These scripts are "Pure Python." They never print to the user; they only return data or perform actions.
+
+### A. `info_engine.py` (The Detective)
+* **Role:** Read-Only Scanner.
+* **Key Function:** `scan_windows_deep()`
+    * Uses PowerShell `Get-CimInstance` to mimic CPU-Z.
+    * Returns a JSON object with CPU, RAM, GPU, and Cloud Drive paths.
+* **Maintenance:** Edit this if you need to detect a new piece of hardware (e.g., a specific drone or 3D printer).
+
+### B. `host_engine.py` (The Worker)
+* **Role:** Action Executor.
+* **Key Functions:**
+    * `nuke(path)`: Force deletes files/folders.
+    * `launch(path)`: Opens files in default OS app.
+    * `run_sys_command(cmd)`: Wrapper for `subprocess.run` to handle errors safely.
+* **Maintenance:** Edit this if you add support for a new OS (e.g., adding MacOS specific launch logic).
+
+---
+
+## 👻 3. The Ghost Shell (`src/commands/cmd_shell.py`)
+This is the interactive loop. It sits *on top* of the Core.
+* **The Loop:** `while True: input()`.
+* **The Three Modes:**
+    1.  **Smart:** Tries Internal -> Magic -> System.
+    2.  **Exec:** Forces System (`exec ping`).
+    3.  **Raw:** Drops to OS Shell (`sh`).
+* **Maintenance:** Edit this to change the "Look and Feel" (Colors, Header, Prompt).
+
+---
+
+## 🏗️ 4. Data Storage Strategy
+* **Code:** `src/` (Syncs to GitHub).
+* **Config:** `data/config/` (Syncs to GitHub).
+* **Private:** `data/vault/` (**IGNORED** by Git).
+    * *Rule:* Never hardcode API keys in `src/`. Always read from `secrets.json`.
+
+==================================================
+FILE: .\desktop.ini
+==================================================
+[ . S h e l l C l a s s I n f o ] 
+ 
+ C o n f i r m F i l e O p = 0 
+ 
+ I c o n R e s o u r c e = C : \ P r o g r a m   F i l e s \ G o o g l e \ D r i v e   F i l e   S t r e a m \ 1 2 0 . 0 . 1 . 0 \ G o o g l e D r i v e F S . e x e , 2 7 
+ 
+ 
+
+==================================================
+FILE: .\specs\Architecture.md
+==================================================
+**REVISED xsvStudio Vault v3.0** with your exact specifications:
+
+***
+
+## **REVISED ARCHITECTURE**
+
+### **1. AUTHENTICATION SYSTEM**
+
+When the vault starts:
+
+```
+╔════════════════════════════════════╗
+║      xsv VAULT - SECURE LOGIN      ║
+╚════════════════════════════════════╝
+
+Username: ian
+Password: ••••••••••
+
+[✓] Authentication successful.
+[→] Vault unlocked.
+```
+
+**First run:**
+```
+╔════════════════════════════════════╗
+║    FIRST TIME SETUP - CREATE USER  ║
+╚════════════════════════════════════╝
+
+Create username: ian
+Create password (min 8 chars): ••••••••••
+Confirm password: ••••••••••
+
+[✓] User 'ian' created.
+[✓] Ready to use vault.
+```
+
+**Stored in:** `config/auth.json` (plain text for now, no encryption yet)
+
+```json
+{
+  "users": {
+    "ian": {
+      "password_hash": "sha256_hash_here",
+      "created": "2026-02-09",
+      "last_login": "2026-02-09 02:30:00"
+    }
+  }
+}
+```
+
+***
+
+### **2. BITLOCKER OPTION (Disabled by Default)**
+
+New command: `security`
+
+```
+>>> security
+
+┌──────────────────────────────────────┐
+│  xsv SECURITY SETTINGS               │
+└──────────────────────────────────────┘
+
+[Encryption Status]:
+  BitLocker: DISABLED (Can enable anytime)
+  User Password: ENABLED
+
+[Options]:
+  [1] Enable BitLocker (Encrypt this drive)
+  [2] Change vault password
+  [3] View security log
+  [4] Back
+
+Choose [1-4]: 1
+
+⚠️  WARNING: BitLocker will encrypt the entire USB drive.
+    Once enabled, you'll need the password to access it on ANY computer.
+    Are you sure? [y/n]: y
+
+🔄 Enabling BitLocker...
+   (This may take a few minutes depending on drive size)
+
+[████████████████████] 100%
+
+✅ BitLocker enabled.
+   Encryption Key: Use your vault password.
+   Unlock on other PCs: Insert USB → Enter password → Done.
+```
+
+**Config file:** `config/security.json`
+
+```json
+{
+  "bitlocker_enabled": false,
+  "bitlocker_drive_letter": "E",
+  "password_protected": true,
+  "authentication_required": true,
+  "created": "2026-02-09"
+}
+```
+
+***
+
+### **3. REVISED NOTE SYSTEM**
+
+**Key Changes:**
+- No per-line timestamps
+- Each "note" can have multiple **entries**
+- First entry gets timestamp when created
+- Subsequent entries get timestamp when added
+
+**Flow:**
+
+```
+>>> note
+
+┌──────────────────────────────────────┐
+│  xsv NOTE EDITOR                     │
+│  (Type your note. SAVE to finish)    │
+└──────────────────────────────────────┘
+
+Note title: Project X - Technical Specs
+
+[2026-02-09 02:15 AM] >>> 
+This is my initial note about the project.
+I need to implement user authentication.
+Also need to handle multi-drive sync.
+
+>>> SAVE
+
+✅ Note saved to: vault/notes/2026-02-09_project-x-technical-specs.md
+```
+
+**Later, user adds to same note:**
+
+```
+>>> note edit project-x-technical-specs
+
+[Existing Note: Project X - Technical Specs]
+
+Current entries: 1
+Last updated: 2026-02-09 02:15 AM
+
+[Options]:
+  [1] View current entries
+  [2] Add new entry
+  [3] Edit existing entry
+  [4] Delete entry
+  [5] Exit
+
+Choose [1-5]: 2
+
+[ADD NEW ENTRY]
+[2026-02-09 11:47 AM] >>>
+Started implementation. First pass on auth complete.
+Need to test with multiple users.
+
+>>> SAVE
+
+✅ Entry added to: vault/notes/2026-02-09_project-x-technical-specs.md
+```
+
+**Note file format (Markdown):**
+
+```markdown
+---
+title: Project X - Technical Specs
+created: 2026-02-09 02:15 AM
+last_updated: 2026-02-09 11:47 AM
+total_entries: 2
+---
+
+## Entry 1 - 2026-02-09 02:15 AM
+
+This is my initial note about the project.
+I need to implement user authentication.
+Also need to handle multi-drive sync.
+
+---
+
+## Entry 2 - 2026-02-09 11:47 AM
+
+Started implementation. First pass on auth complete.
+Need to test with multiple users.
+
+---
+```
+
+**Note Commands:**
+```
+>>> note                          # Create new note
+>>> note list                     # List all notes
+>>> note view <name>              # View note content
+>>> note edit <name>              # Add entry to existing note
+>>> note delete <name>            # Delete note
+```
+
+***
+
+### **4. REVISED JOURNAL SYSTEM**
+
+**Key Changes:**
+- Per-entry timestamps with AM/PM
+- Multiple entries per day (each gets its own timestamp)
+- Can add to journal anytime, even days later
+- Entries are tied to the day they're "about" not the day created
+
+**Flow:**
+
+```
+>>> journal
+
+┌──────────────────────────────────────┐
+│  xsv JOURNAL                         │
+│  (Entries get auto-timestamped)      │
+└──────────────────────────────────────┘
+
+Journal date [today/YYYY-MM-DD]: today
+Entry title: Deployed Server Update
+
+[2026-02-09 02:17 AM] >>>
+Server was running slow this afternoon.
+Updated all plugins and restarted.
+Performance looks good now.
+
+>>> SAVE
+
+✅ Entry added to: vault/journal/2026-02-09.md
+```
+
+**Later in the day, add another entry:**
+
+```
+>>> journal
+
+Journal date [today/YYYY-MM-DD]: today
+Entry title: Morning Standup
+
+[2026-02-09 09:45 AM] >>>
+Reviewed client tickets.
+Prioritized backlog for sprint.
+Starting on Feature X.
+
+>>> SAVE
+
+✅ Entry added to: vault/journal/2026-02-09.md
+```
+
+**Next day, but add to yesterday's journal:**
+
+```
+>>> journal
+
+Journal date [today/YYYY-MM-DD]: 2026-02-08
+Entry title: Forgot to log - Bug fix
+
+[2026-02-08 11:30 PM] >>>
+Fixed critical bug in payment processor.
+Rolled out hotfix to production.
+Monitoring for issues.
+
+>>> SAVE
+
+✅ Entry added to: vault/journal/2026-02-08.md
+```
+
+**Journal file format (Markdown):**
+
+```markdown
+# 2026-02-09 Journal
+
+## 02:17 AM - Deployed Server Update
+
+Server was running slow this afternoon.
+Updated all plugins and restarted.
+Performance looks good now.
+
+---
+
+## 09:45 AM - Morning Standup
+
+Reviewed client tickets.
+Prioritized backlog for sprint.
+Starting on Feature X.
+
+---
+
+## 03:20 PM - Testing Results
+
+New features tested successfully.
+Found 2 minor bugs, created tickets.
+Ready for tomorrow's demo.
+
+---
+```
+
+**Journal Commands:**
+```
+>>> journal                        # Add new entry (prompts for date)
+>>> journal list                   # Show all journal dates
+>>> journal view 2026-02-09        # View specific date's entries
+>>> journal today                  # View today's entries
+>>> journal search <keyword>       # Search across all journals
+>>> journal edit 2026-02-09        # Add another entry to existing date
+```
+
+***
+
+### **5. COMPLETE DIRECTORY STRUCTURE (Updated)**
+
+```
+xsv_vault/
+│
+├── xsv_vault.exe                    # Main entry point (compiled Python)
+├── xsv_vault.py                     # Source
+├── vault_api.py                     # Core business logic (decoupled)
+├── vault_cli.py                     # CLI interface
+│
+├── config/
+│   ├── auth.json                    # Users & passwords
+│   ├── security.json                # BitLocker, encryption settings
+│   ├── commands.json                # User-defined commands
+│   ├── servers.json                 # Game server templates
+│   ├── vault_metadata.json          # Vault info & sync status
+│   └── email_config.json            # IMAP credentials (future)
+│
+├── vault/
+│   ├── notes/
+│   │   ├── 2026-02-09_project-x-technical-specs.md
+│   │   ├── 2026-02-09_quick-idea.md
+│   │   └── 2026-02-10_client-meeting-notes.md
+│   │
+│   ├── journal/
+│   │   ├── 2026-02-09.md
+│   │   ├── 2026-02-10.md
+│   │   └── 2026-02-11.md
+│   │
+│   └── documents/
+│       ├── server_configs/
+│       │   ├── minecraft_survival_backup.zip
+│       │   ├── ark_pvp_backup.zip
+│       │   └── conan_settings.yaml
+│       ├── scripts/
+│       ├── credentials/
+│       └── other/
+│
+├── library/
+│   ├── restore_xsv.ps1
+│   ├── mc_installer.py
+│   ├── email_client.py
+│   ├── servers/
+│   │   ├── minecraft_installer.py
+│   │   ├── ark_installer.py
+│   │   └── conan_installer.py
+│   └── utils/
+│
+└── sync/
+    ├── local_uuid.txt
+    ├── sync_log.txt
+    └── conflict_log.txt
+```
+
+***
+
+### **6. SECURITY SETTINGS DETAILS**
+
+**`config/security.json`**
+
+```json
+{
+  "authentication": {
+    "enabled": true,
+    "required_on_startup": true,
+    "failed_attempts_lockout": 3,
+    "lockout_duration_minutes": 15
+  },
+  "encryption": {
+    "bitlocker_enabled": false,
+    "bitlocker_drive_letter": "E",
+    "auto_enable_prompt": false
+  },
+  "vault": {
+    "created": "2026-02-09",
+    "version": "3.0",
+    "last_security_check": "2026-02-09 02:30:00"
+  }
+}
+```
+
+***
+
+### **7. QUICK REFERENCE: COMMAND EXAMPLES**
+
+```
+=== AUTHENTICATION ===
+login                               # Login on startup (automatic)
+security                            # Manage security settings
+security enable_bitlocker           # Enable BitLocker encryption
+security change_password            # Change vault password
+
+=== NOTES ===
+note                                # Create new note
+note list                           # List all notes
+note view project-x-technical      # View note content
+note edit project-x-technical      # Add new entry to note
+note delete project-x-technical    # Delete note
+
+=== JOURNAL ===
+journal                             # Add journal entry (prompts for date)
+journal list                        # List all journal dates
+journal today                       # View today's entries
+journal view 2026-02-09            # View specific date
+journal search deployment          # Search all journals
+journal edit 2026-02-09            # Add entry to existing date
+
+=== SERVERS ===
+server install                      # Install new game server
+server list                         # List active servers
+server backup <name>               # Backup server
+
+=== COMMANDS & SCRIPTS ===
+list                                # List available commands
+run mmand>                       # Run command/script
+wizard                              # Create new custom command
+
+=== SYNC & BACKUP ===
+sync list                          # List connected drives
+sync merge <drive>                 # Merge vaults
+sync status                        # Check sync status
+
+=== EMAIL (Future) ===
+email                              # Email client menu
+email config                       # Configure IMAP
+email check                        # Check mail
+
+=== UTILITY ===
+help                               # Show all commands
+about                              # About xsvStudio Vault
+exit                               # Exit vault
+```
+
+***
+
+### **8. STARTUP FLOW**
+
+```
+╔════════════════════════════════════╗
+║      xsv VAULT v3.0                ║
+║   Secure Command Deck              ║
+╚════════════════════════════════════╝
+
+[Checking vault configuration...]
+  ✓ Config files present
+  ✓ User data folder ready
+  ✓ Sync metadata loaded
+
+┌──────────────────────────────────────┐
+│  LOGIN REQUIRED                      │
+└──────────────────────────────────────┘
+
+Username: ian
+Password: ••••••••••
+
+✅ Authentication successful.
+🔓 Vault unlocked.
+
+[System Information]:
+  Drive: xsv_vault (USB_01_Main)
+  Free Space: 14.2 GB
+  Last Sync: 2026-02-09 01:15 AM
+  Connected Drives: 1
+
+[Recent Activity]:
+  └─ Last journal entry: 2026-02-09 02:15 AM
+  └─ Last note: 2026-02-09 11:30 AM
+  └─ Last command: restore_pc (2026-02-08)
+
+Type 'help' for commands.
+
+xsv@vault $ 
+```
+
+***
+
+## **SUMMARY OF CHANGES**
+
+✅ **Authentication:** Username + password (stored in `auth.json`)  
+✅ **BitLocker:** Optional toggle, disabled by default  
+✅ **Notes:** Multiple entries per note (first + subsequent timestamps)  
+✅ **Journal:** Per-entry timestamps with AM/PM, can add to past dates  
+✅ **Architecture:** Ready for future UI layer (decoupled API)  
+✅ **Everything else:** Config-driven, extensible, game-agnostic
+
+***
+
+
+
+==================================================
+FILE: .\specs\system_structure.md
+==================================================
+## **xsvCommand Center - COMPLETE SPECIFICATION**
+
+### **CORE CONCEPT**
+A portable, encrypted command-line operating system on USB that:
+- ✅ Runs on Windows or Linux (any computer)
+- ✅ Maintains isolated workspace within the vault
+- ✅ Can navigate/manage host OS files and systems
+- ✅ Includes comprehensive logging, error handling, telemetry
+- ✅ Future-ready for GUI dashboard layer
+- ✅ Built for expansion and plugin architecture
+
+***
+
+## **1. ENHANCED ARCHITECTURE**
+
+### **A. CORE LAYERS (Decoupled)**
+
+```
+xsvCommand Center/
+│
+├── ENTRY POINT
+│   ├── xsv_cc.exe (Windows compiled)
+│   ├── xsv_cc (Linux binary)
+│   └── xsv_cc.py (source - portable)
+│
+├── CORE SUBSYSTEMS
+│   ├── auth_engine.py           # Login, sessions, permissions
+│   ├── vault_engine.py          # Secure storage, encryption
+│   ├── command_router.py        # Command dispatch & execution
+│   ├── host_bridge.py           # Host OS interaction (FILES, PROCESS, SYSTEM)
+│   ├── logging_engine.py        # Comprehensive logging
+│   ├── error_handler.py         # Error reporting & recovery
+│   └── sync_engine.py           # Multi-drive sync
+│
+├── API LAYER (Future GUI)
+│   ├── rest_api.py              # RESTful API for dashboard
+│   ├── websocket_handler.py     # Real-time updates
+│   └── event_bus.py             # Event streaming
+│
+├── BUILT-IN COMMANDS
+│   ├── cmd_notes.py             # Note system
+│   ├── cmd_journal.py           # Journal system
+│   ├── cmd_server.py            # Game server management
+│   ├── cmd_files.py             # File management (HOST ACCESS)
+│   ├── cmd_system.py            # System commands (HOST ACCESS)
+│   ├── cmd_security.py          # Security & encryption
+│   ├── cmd_sync.py              # Vault sync
+│   └── cmd_scripts.py           # Custom command runner
+│
+└── CONFIGURATION & DATA
+    ├── config/
+    ├── vault/
+    ├── library/
+    ├── logs/
+    ├── cache/
+    └── temp/
+```
+
+***
+
+## **2. HOST OS NAVIGATION (THE "COOL" PART)**
+
+### **Command: `host` - Navigate the actual computer**
+
+```bash
+>>> host
+
+┌──────────────────────────────────────┐
+│  HOST OPERATING SYSTEM NAVIGATOR     │
+│  Current: C:\ (Windows) or / (Linux) │
+└──────────────────────────────────────┘
+
+Current Path: C:\Users\boss\Desktop
+Directory contents:
+  [DIR]  Projects/
+  [DIR]  Documents/
+  [FILE] report.xlsx (2.4 MB)
+  [FILE] notes.txt (15 KB)
+
+Commands:
+  cd <path>              # Change directory
+  ls [-la]               # List files
+  cat <file>             # View file content
+  rm <file>              # Delete file
+  copy <src> <dst>       # Copy file
+  move <src> <dst>       # Move/rename
+  mkdir <path>           # Create directory
+  find <pattern>         # Search files
+  tree [depth]           # Directory tree
+  info <path>            # File/folder info
+  back                   # Go to vault
+
+xsv@host:C:\Users\boss\Desktop$ 
+```
+
+### **Key Features:**
+- Navigate any drive/folder on host OS
+- View, copy, move, delete files (with permission prompts for safety)
+- Search the file system
+- Execute host scripts/programs
+- View system information
+- ALL ACTIONS LOGGED
+
+### **Example Workflow (Boss Computer Cleanup):**
+```bash
+>>> host
+xsv@host:C:\Users\boss\Desktop$ ls -la
+xsv@host:C:\Users\boss\Desktop$ cd ../Downloads
+xsv@host:C:\Users\boss\Downloads$ find *.tmp
+  temp_install_001.tmp (450 MB)
+  old_cache_data.tmp (320 MB)
+xsv@host:C:\Users\boss\Downloads$ rm temp_install_001.tmp
+  ⚠️  Delete 'temp_install_001.tmp' (450 MB)? [y/n]: y
+  ✅ Deleted. Freed 450 MB
+xsv@host:C:\Users\boss\Downloads$ back
+xsv@vault$ 
+```
+
+***
+
+## **3. COMPREHENSIVE LOGGING SYSTEM**
+
+### **A. What Gets Logged**
+
+```
+logs/
+├── system.log          # All activity (rotating, 100MB max per file)
+├── security.log        # Auth, encryption, permissions
+├── command.log         # Every command executed (with args)
+├── host_access.log     # Host OS navigation & file operations
+├── error.log           # Errors, exceptions, crashes
+├── sync.log            # Vault sync operations
+├── audit.log           # User actions for compliance
+└── performance.log     # Performance metrics
+```
+
+### **B. Log Entry Format**
+
+```json
+{
+  "timestamp": "2026-02-09 07:15:23 AM EST",
+  "level": "INFO|WARN|ERROR|CRITICAL",
+  "component": "host_bridge|auth_engine|command_router",
+  "event_type": "file_deleted|command_executed|auth_failed",
+  "user": "ian",
+  "action": "rm /home/boss/Downloads/temp.tmp",
+  "details": {
+    "path": "/home/boss/Downloads/temp.tmp",
+    "size_bytes": 450000000,
+    "status": "success",
+    "duration_ms": 1250
+  },
+  "result": "success|failed",
+  "error": null
+}
+```
+
+### **C. Commands to View Logs**
+
+```bash
+>>> log view                    # Last 50 entries
+>>> log view --system           # System logs
+>>> log view --errors           # Errors only
+>>> log view --user ian         # By user
+>>> log view --since 2026-02-09 # Date range
+>>> log search "deleted"        # Search logs
+>>> log export report.pdf       # Export report
+>>> log stats                   # Usage statistics
+```
+
+### **D. Log Stats Dashboard**
+
+```
+>>> log stats
+
+┌──────────────────────────────────────┐
+│  VAULT ACTIVITY STATISTICS           │
+└──────────────────────────────────────┘
+
+[Time Period]: Last 30 days
+[Total Commands]: 1,247
+[Total Errors]: 3 (0.24%)
+[Total Warnings]: 18
+
+[By Category]:
+  Notes Created: 52
+  Journal Entries: 187
+  Host Commands: 412
+  Files Managed: 284
+  Security Events: 12
+
+[Top Commands]:
+  1. host cd           (95 times)
+  2. note view        (87 times)
+  3. journal          (167 times)
+
+[Error Summary]:
+  FileNotFound: 2
+  PermissionDenied: 1
+  InvalidCommand: 0
+```
+
+***
+
+## **4. ERROR HANDLING & RECOVERY**
+
+### **A. Error Reporting Levels**
+
+```python
+# error_handler.py
+
+class ErrorLevel:
+    INFO = 0           # Informational
+    WARNING = 1        # Non-critical issue
+    CRITICAL = 2       # Operation failed
+    FATAL = 3          # Vault unstable
+    
+class ErrorRecovery:
+    RETRY = "auto_retry"
+    MANUAL = "prompt_user"
+    ROLLBACK = "undo_operation"
+    EXIT = "safe_shutdown"
+```
+
+### **B. Example Error Scenarios**
+
+```
+[SCENARIO 1] Insufficient Disk Space
+>>> journal
+
+⚠️  WARNING: Journal entry exceeds available space.
+    Required: 5.2 MB
+    Available: 2.1 MB
+    
+    Options:
+      [1] Sync/backup to another drive first
+      [2] Clear cache (1.8 MB available)
+      [3] Cancel operation
+      
+    Choose [1-3]: 1
+
+[SCENARIO 2] Host File Permission Denied
+>>> host
+xsv@host:C:\Windows\System32$ rm config.sys
+
+❌ CRITICAL ERROR: Access Denied
+   You don't have permission to delete this file.
+   
+   Details:
+     Path: C:\Windows\System32\config.sys
+     Required: Administrator privileges
+     Current: Standard user
+     
+   Recovery:
+     [1] Request admin elevation (requires password)
+     [2] Try different file
+     [3] View file info only
+     
+   Choose [1-3]: 1
+
+[SCENARIO 3] Vault Corruption
+>>> help
+
+❌ FATAL ERROR: Vault data corrupted
+   Attempting automatic recovery...
+   
+   [████████████████░░] 80% (Recovery in progress)
+   
+   Recovery Steps:
+     1. Checking auth.json         ✅
+     2. Validating vault/notes     ⚠️  Some entries missing
+     3. Restoring from sync cache  🔄 In progress...
+     4. Rebuilding index           ⏳
+
+   Recommended:
+     - Do NOT power off the system
+     - Backup to external drive when done
+     - Run 'vault repair --full' for deep scan
+```
+
+***
+
+## **5. GUI/DASHBOARD INTEGRATION POINTS**
+
+### **A. Architecture for Future GUI**
+
+```
+┌─────────────────────────────────────┐
+│     GUI Dashboard (React/Electron)  │
+│                                     │
+│  ├─ Command Center Terminal        │
+│  ├─ Real-time Activity Monitor     │
+│  ├─ File Manager (Host + Vault)    │
+│  ├─ Security Dashboard             │
+│  ├─ Log Viewer & Analytics         │
+│  └─ Settings & Configuration       │
+└─────────────────────────────────────┘
+          ↓ (WebSocket + REST API)
+┌─────────────────────────────────────┐
+│       xsvCommand Center Core        │
+│    (Python backend with API layer)  │
+└─────────────────────────────────────┘
+```
+
+### **B. REST API Endpoints (Future)**
+
+```
+GET  /api/v1/status              # Vault status
+GET  /api/v1/logs                # Get logs
+POST /api/v1/command             # Execute command
+GET  /api/v1/host/files          # List host files
+GET  /api/v1/vault/notes         # Get notes
+GET  /api/v1/vault/journal       # Get journal
+GET  /api/v1/system/info         # System info
+```
+
+### **C. WebSocket Events**
+
+```javascript
+// Real-time updates to dashboard
+ws.on('command:executed', {user, command, duration})
+ws.on('file:deleted', {path, size})
+ws.on('vault:synced', {drive, status})
+ws.on('error:occurred', {level, message})
+ws.on('auth:login', {user, timestamp})
+```
+
+***
+
+## **6. CROSS-PLATFORM COMPATIBILITY**
+
+### **Windows Support**
+```python
+# Detect Windows
+if sys.platform == "win32":
+    - Use PowerShell for system commands
+    - Support BitLocker encryption
+    - Handle Windows file permissions (NTFS ACLs)
+    - Drive letter navigation (C:\, D:\, etc.)
+    - Registry access (advanced features)
+```
+
+### **Linux Support**
+```python
+# Detect Linux
+elif sys.platform == "linux":
+    - Use bash/sh for system commands
+    - Support dm-crypt/LUKS encryption
+    - Handle Linux file permissions
+    - Full mount point access
+    - systemd integration
+```
+
+***
+
+## **7. COMPLETE DIRECTORY STRUCTURE (FINAL)**
+
+```
+xsvCommandCenter/
+│
+├── README.md                        # Main documentation
+├── SETUP.md                         # Installation guide
+├── API.md                           # API documentation
+├── CHANGELOG.md                     # Version history
+│
+├── xsv_cc.py                        # Main entry point (source)
+├── xsv_cc.exe                       # Windows compiled
+├── xsv_cc                           # Linux compiled
+├── requirements.txt                 # Python dependencies
+│
+├── src/
+│   ├── __init__.py
+│   ├── main.py                      # Application entry
+│   ├── cli_interface.py             # Terminal UI
+│   ├── command_dispatcher.py        # Route commands
+│   │
+│   ├── core/
+│   │   ├── auth_engine.py           # Authentication & sessions
+│   │   ├── vault_engine.py          # Encryption & storage
+│   │   ├── host_bridge.py           # Host OS interaction
+│   │   ├── logging_engine.py        # Logging system
+│   │   ├── error_handler.py         # Error handling
+│   │   ├── sync_engine.py           # Vault synchronization
+│   │   └── config_manager.py        # Config handling
+│   │
+│   ├── commands/
+│   │   ├── __init__.py
+│   │   ├── cmd_notes.py             # Note management
+│   │   ├── cmd_journal.py           # Journal system
+│   │   ├── cmd_files.py             # Vault file ops
+│   │   ├── cmd_host.py              # HOST OS NAVIGATOR ⭐
+│   │   ├── cmd_system.py            # System commands
+│   │   ├── cmd_security.py          # Security settings
+│   │   ├── cmd_server.py            # Game servers
+│   │   ├── cmd_sync.py              # Vault sync
+│   │   ├── cmd_logs.py              # Log viewing
+│   │   └── cmd_help.py              # Help system
+│   │
+│   ├── api/                         # (Future GUI integration)
+│   │   ├── rest_api.py
+│   │   ├── websocket_handler.py
+│   │   └── event_bus.py
+│   │
+│   └── utils/
+│       ├── platform_utils.py        # Windows/Linux detection
+│       ├── encryption.py            # Crypto functions
+│       ├── validators.py            # Input validation
+│       └── formatters.py            # Output formatting
+│
+├── config/
+│   ├── auth.json                    # Users & credentials
+│   ├── security.json                # Security settings
+│   ├── vault_metadata.json          # Vault info
+│   ├── commands.json                # Custom commands
+│   ├── servers.json                 # Game server configs
+│   └── api_config.json              # API settings
+│
+├── vault/
+│   ├── notes/
+│   ├── journal/
+│   ├── documents/
+│   │   ├── server_configs/
+│   │   ├── scripts/
+│   │   ├── credentials/
+│   │   └── other/
+│   └── temp/
+│
+├── library/
+│   ├── restore_xsv.ps1              # Windows restore script
+│   ├── restore_xsv.sh               # Linux restore script
+│   ├── installers/
+│   │   ├── minecraft.py
+│   │   ├── ark.py
+│   │   └── conan.py
+│   └── utilities/
+│       ├── backup_manager.py
+│       ├── performance_monitor.py
+│       └── system_cleaner.py
+│
+├── logs/
+│   ├── system.log
+│   ├── security.log
+│   ├── command.log
+│   ├── host_access.log
+│   ├── error.log
+
+==================================================
+FILE: .\specs\00_MANIFEST.md
+==================================================
+# xsvCommandCenter - Project Manifest
+
+## 1. Prime Directives
+1. **Hybrid Portability:** Works on USB, SSD, or Cloud.
+2. **Native Integration:** Runs in native terminal.
+3. **Cross-Platform:** Uses pathlib and os.name checks.
+
+## 2. Module Registry
+| Module | Purpose |
+| :--- | :--- |
+| **Core** | Auth, Config |
+| **Vault** | Encrypted storage |
+| **Host** | OS Interaction |
+
+
+==================================================
+FILE: .\specs\01_PLATFORM_RULES.md
+==================================================
+# Platform & Path Rules
+
+## 1. Path Handling
+- NEVER hardcode backslashes.
+- ALWAYS use pathlib.Path.
+
+## 2. Terminal Detection
+- Windows: Assume powershell/cmd.
+- Linux: Assume bash/zsh.
+
+
+==================================================
+FILE: .\specs\02_HOST.md
+==================================================
+# Specification: Host Bridge (02_HOST.md)
+
+## 1. Objective
+This module handles all Operating System interactions. We never use 'os.system' directly in other files.
+
+## 2. Required Functions
+- get_os_type(): Returns 'windows' or 'linux'.
+- clear_screen(): Runs 'cls' (Windows) or 'clear' (Linux).
+- launch(path): Opens a file or program safely.
+- is_vm(): Checks if we are running inside Parrot OS or a VM.
+
+
+==================================================
+FILE: .\specs\03_VAULT.md
+==================================================
+# Specification: Data Vault (03_VAULT.md)
+
+## 1. Objective
+This module handles saving and loading your Journal and Notes.
+
+## 2. File Structure
+- Data lives in the 'data/vault/' folder.
+- Journal entries go into 'data/vault/journal/YYYY-MM-DD.md'.
+- Notes go into 'data/vault/notes/'.
+
+
+==================================================
+FILE: .\specs\04_WEB.md
+==================================================
+# Specification: Web Interface (04_WEB.md)
+
+## 1. Objective
+A simple web page to view your notes and launch apps.
+
+## 2. Settings
+- Default Port: 8000
+- Address: localhost (127.0.0.1)
+- If Port 8000 is busy, try 8001, then 8002.
+
+
+==================================================
+FILE: .\specs\desktop.ini
+==================================================
+[ . S h e l l C l a s s I n f o ] 
+ 
+ C o n f i r m F i l e O p = 0 
+ 
+ I c o n R e s o u r c e = C : \ P r o g r a m   F i l e s \ G o o g l e \ D r i v e   F i l e   S t r e a m \ 1 2 0 . 0 . 1 . 0 \ G o o g l e D r i v e F S . e x e , 2 7 
+ 
+ 
+
+==================================================
+FILE: .\src\main.py
+==================================================
+import sys
+import importlib
+from pathlib import Path
+
+# CONFIGURATION
+APP_NAME = "xsvCommandCenter"
+VERSION = "v5.2-ModularHelp"
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.append(str(PROJECT_ROOT))
+
+from src.commands import cmd_launcher, cmd_help
+
+def main():
+    # If no arguments, run the HELP command
+    if len(sys.argv) < 2:
+        cmd_help.run([])
+        return
+
+    # Otherwise, run the requested command
+    cmd_name = sys.argv[1].lower()
+    cmd_args = sys.argv[2:]
+
+    # 1. Try to find a Module (src/commands/cmd_*.py)
+    try:
+        module_path = f"src.commands.cmd_{cmd_name}"
+        module = importlib.import_module(module_path)
+        module.run(cmd_args)
+        return
+    except ModuleNotFoundError:
+        pass # Not a module, try Magic Launcher
+
+    # 2. Try Magic Launcher (commands.json)
+    launcher = cmd_launcher.Launcher()
+    if launcher.run(cmd_name):
+        return
+
+    # 3. If neither found
+    print(f"❌ Unknown command: '{cmd_name}'")
+    print("   Type 'xsv help' to see available tools.")
+
+if __name__ == "__main__":
+    main()
+
+==================================================
+FILE: .\src\__init__.py
+==================================================
+
+
+==================================================
+FILE: .\src\desktop.ini
+==================================================
+[ . S h e l l C l a s s I n f o ] 
+ 
+ C o n f i r m F i l e O p = 0 
+ 
+ I c o n R e s o u r c e = C : \ P r o g r a m   F i l e s \ G o o g l e \ D r i v e   F i l e   S t r e a m \ 1 2 0 . 0 . 1 . 0 \ G o o g l e D r i v e F S . e x e , 2 7 
+ 
+ 
+
+==================================================
+FILE: .\src\commands\cmd_journal.py
+==================================================
+import sys
+from src.core.vault_api import VaultAPI
+from src.core.host_bridge import HostBridge
+
+def run(args):
+    api = VaultAPI()
+    if not args:
+        print("Usage: xsv journal <add|view|open> [args]")
+        return
+
+    cmd = args[0].lower()
+
+    if cmd == "add":
+        if len(args) < 2:
+            print("Usage: xsv journal add 'Title' 'Content'")
+            return
+        # If user provides 1 arg, treat as content with generic title
+        if len(args) == 2:
+            title = "Note"
+            content = args[1]
+        else:
+            title = args[1]
+            content = " ".join(args[2:])
+            
+        success, res = api.append_journal(title, content)
+        if success: print(f"✅ Saved to {res.name}")
+
+    elif cmd == "view":
+        print(api.read_journal())
+
+    elif cmd == "open":
+        path = api.get_journal_path()
+        if not path.exists(): api.append_journal("Init", "Log started.")
+        print(f"🚀 Opening {path.name}...")
+        HostBridge.launch(str(path))
+    else:
+        print("Unknown command.")
+
+==================================================
+FILE: .\src\commands\cmd_todo.py
+==================================================
+import sys
+from src.core.vault_api import VaultAPI
+
+def run(args):
+    api = VaultAPI()
+    if not args:
+        print("Usage:")
+        print("  xsv todo add 'Buy Milk'")
+        print("  xsv todo list")
+        print("  xsv todo done <ID>")
+        return
+
+    cmd = args[0].lower()
+
+    if cmd == "add":
+        if len(args) < 2: return
+        item = " ".join(args[1:])
+        api.add_todo(item)
+        print(f"✅ Added: {item}")
+
+    elif cmd == "list":
+        todos = api.get_todos()
+        print("\n📝 TODO LIST:")
+        for t in todos:
+            icon = "✅" if t['done'] else "⬜"
+            # Color code index for easy reading
+            print(f" {t['id']} {icon} {t['text']}")
+        print("")
+
+    elif cmd == "done":
+        if len(args) < 2: return
+        try:
+            idx = int(args[1])
+            if api.complete_todo(idx):
+                print(f"🎉 Task {idx} Complete!")
+            else:
+                print("❌ Invalid ID")
+        except:
+            print("❌ ID must be a number")
+
+==================================================
+FILE: .\src\commands\cmd_host.py
+==================================================
+import sys
+import os
+from src.core.host_engine import HostEngine
+
+def run(args):
+    if not args:
+        print("Usage: xsv host <sub-command>")
+        print("  ls <path>    - List Files")
+        print("  nuke <path>  - Force Delete")
+        print("  ps           - Process List")
+        print("  info         - Deep Scan")
+        print("  cmd <cmd>    - Run System Command (e.g., 'ipconfig')")
+        return
+
+    sub_cmd = args[0].lower()
+    
+    # 1. INFO COMMAND (The Deep Scan)
+    if sub_cmd == "info":
+        print("\n🔎 Running Deep Hardware Scan (CPU-Z Style)...")
+        report = HostEngine.get_info()
+        data = report.get("Data", {})
+        
+        print("\n" + "="*60)
+        print(f"   SYSTEM REPORT: {data.get('System', {}).get('Model', 'Unknown PC')}")
+        print("="*60)
+
+        # BIOS & MOBO
+        print(f"\n📟 MOTHERBOARD")
+        mobo = data.get("Mobo", {})
+        bios = data.get("BIOS", {})
+        print(f"   Board: {mobo.get('Make')} {mobo.get('Model')}")
+        print(f"   BIOS:  {bios.get('Version')} (Date: {bios.get('Date')})")
+        print(f"   S/N:   {bios.get('Serial')}")
+
+        # CPU
+        cpu = data.get("CPU", {})
+        print(f"\n🧠 PROCESSOR")
+        print(f"   Name:   {cpu.get('Name')}")
+        print(f"   Socket: {cpu.get('Socket')}")
+        print(f"   Specs:  {cpu.get('Cores')} Cores / {cpu.get('Threads')} Threads")
+
+        # RAM
+        print(f"\n💾 MEMORY")
+        sticks = data.get("RAM_Sticks", [])
+        if isinstance(sticks, dict): sticks = [sticks]
+        for s in sticks:
+            cap = int(s.get('Capacity', 0)) // (1024**3)
+            print(f"   • {s.get('Manufacturer')} {cap}GB @ {s.get('Speed')}MHz ({s.get('PartNumber')})")
+
+        # GPU
+        print(f"\n🎮 GRAPHICS")
+        gpus = data.get("GPUs", [])
+        if isinstance(gpus, dict): gpus = [gpus]
+        for g in gpus:
+            vram = "Unknown"
+            if g.get('AdapterRAM'):
+                vram = f"{int(g['AdapterRAM']) // (1024**3)} GB"
+            print(f"   • {g.get('Name')} [{vram}]")
+            print(f"     Driver: {g.get('DriverVersion')}")
+
+        # STORAGE
+        print(f"\n💽 DRIVES")
+        disks = data.get("Disks", [])
+        if isinstance(disks, dict): disks = [disks]
+        for d in disks:
+            size_gb = int(d.get('Size', 0)) // (1024**3)
+            print(f"   • {d.get('Model')} ({d.get('MediaType')}) - {size_gb} GB")
+
+        # CLOUD
+        print(f"\n☁️ CLOUD")
+        for c in report.get("Cloud", []):
+            print(f"   • {c['name']}: {c['path']}")
+
+        # COOLING
+        print(f"\n❄️ ENTHUSIAST USB")
+        usb = data.get("Cooling", [])
+        if usb:
+            if isinstance(usb, dict): usb = [usb]
+            for u in usb: print(f"   • {u.get('FriendlyName')}")
+        else:
+            print("   (No smart devices found)")
+
+        print("\n" + "="*60 + "\n")
+
+    # 2. FILE COMMANDS
+    elif sub_cmd == "ls":
+        target = args[1] if len(args) > 1 else "."
+        items = HostEngine.list_dir(target)
+        if items:
+            print(f"📂 Listing: {os.path.abspath(target)}")
+            print("-" * 40)
+            for i in items: 
+                icon = "📁" if i['type'] == "DIR" else "📄"
+                print(f"{icon} {i['name']}")
+            
+    elif sub_cmd == "nuke":
+        if len(args) > 1: HostEngine.nuke(args[1])
+
+    # 3. SYSTEM COMMANDS
+    elif sub_cmd == "ps":
+        print("Running Processes:")
+        for p in HostEngine.get_procs()[:10]: print(p)
+
+    elif sub_cmd == "cmd" or sub_cmd == "exec":
+        full_cmd = " ".join(args[1:])
+        HostEngine.run_sys_command(full_cmd)
+        
+    elif sub_cmd == "open" or sub_cmd == "launch":
+        if len(args) > 1: HostEngine.launch(args[1])
+
+    else:
+        print(f"❌ Unknown host command: {sub_cmd}")
+
+==================================================
+FILE: .\src\commands\cmd_alias.py
+==================================================
+import sys
+import shutil
+import os
+from pathlib import Path
+
+def run(args):
+    if not args:
+        print("Usage: xsv alias [add|list|nuke] <name>")
+        return
+
+    cmd = args[0].lower()
+    # Define root relative to this file (src/commands/cmd_alias.py -> root)
+    root = Path(__file__).parent.parent.parent
+    
+    # --- ADD COMMAND ---
+    if cmd == "add":
+        if len(args) < 2:
+            print("❌ Usage: xsv alias add <name>")
+            return
+        
+        new_name = args[1]
+        src = root / "xsv.bat"
+        tgt = root / f"{new_name}.bat"
+        
+        if not src.exists():
+            print("❌ Critical: xsv.bat source not found.")
+            return
+
+        try:
+            shutil.copy(src, tgt)
+            print(f"✅ Alias '{new_name}' created. You can now type: {new_name}")
+        except Exception as e:
+            print(f"❌ Error creating alias: {e}")
+
+    # --- LIST COMMAND ---
+    elif cmd == "list":
+        print("\n🔗 Active Aliases:")
+        count = 0
+        # Scan folder for .bat files that are NOT the system files
+        for f in root.glob("*.bat"):
+            if f.name not in ["setup_xsv.bat", "setup_path.bat", "xsv.bat"]: 
+                print(f"  🔹 {f.stem}")
+                count += 1
+        if count == 0: 
+            print("  (None found)")
+        print("")
+            
+    # --- NUKE COMMAND ---
+    elif cmd == "nuke":
+        if len(args) < 2: 
+            print("❌ Usage: xsv alias nuke <name>")
+            return
+            
+        tgt = root / f"{args[1]}.bat"
+        
+        if args[1].lower() == "xsv":
+            print("❌ Cannot nuke the original xsv command!")
+            return
+
+        if tgt.exists(): 
+            try:
+                os.remove(tgt)
+                print(f"🗑️ Nuked alias: {args[1]}")
+            except Exception as e:
+                print(f"❌ Error deleting file: {e}")
+        else:
+            print(f"❌ Alias '{args[1]}' not found.")
+            
+    else:
+        print("Unknown alias command.")
+
+==================================================
+FILE: .\src\commands\cmd_launcher.py
+==================================================
+import sys
+import json
+import subprocess
+from pathlib import Path
+from src.core.host_bridge import HostBridge
+
+class Launcher:
+    def __init__(self):
+        self.root = Path(__file__).parent.parent.parent
+        self.config_path = self.root / "data" / "config" / "commands.json"
+        self.library_path = self.root / "library"
+
+    def load_commands(self):
+        if not self.config_path.exists(): return {}
+        try:
+            with open(self.config_path, "r") as f:
+                return json.load(f).get("commands", {})
+        except: return {}
+
+    def list_commands(self):
+        cmds = self.load_commands()
+        if not cmds: return
+        print("\n⚡ MAGIC COMMANDS (commands.json):")
+        print(f"{'COMMAND':<15} {'DESCRIPTION'}")
+        print("-" * 40)
+        for name, data in cmds.items():
+            print(f"{name:<15} {data.get('description', '')}")
+        print("")
+
+    def run(self, command_name):
+        commands = self.load_commands()
+        if command_name not in commands: return False
+
+        cfg = commands[command_name]
+        print(f"🚀 Launching: {cfg.get('description', command_name)}...")
+
+        if cfg.get("confirm", False):
+            if input("⚠️  Are you sure? (y/n): ").lower() != "y":
+                print("🛑 Cancelled.")
+                return True
+
+        try:
+            if cfg['type'] == 'script':
+                # Check library first, then relative path
+                script_path = self.library_path / Path(cfg['path']).name
+                if not script_path.exists():
+                    script_path = self.root / cfg['path']
+                
+                HostBridge.launch(str(script_path))
+                
+            elif cfg['type'] == 'shell':
+                subprocess.run(cfg['cmd'], shell=True)
+                
+            print("✅ Done.")
+        except Exception as e:
+            print(f"❌ Error: {e}")
+        return True
+
+==================================================
+FILE: .\src\commands\cmd_help.py
+==================================================
+import sys
+from pathlib import Path
+from src.core.host_engine import HostEngine
+from src.commands import cmd_launcher
+
+def get_modules():
+    """Scans the commands folder for files named cmd_*.py"""
+    cmd_dir = Path(__file__).parent
+    modules = []
+    if cmd_dir.exists():
+        for f in cmd_dir.glob("cmd_*.py"):
+            name = f.stem.replace("cmd_", "")
+            if name not in ["launcher", "__init__"]:
+                modules.append(name)
+    return sorted(modules)
+
+def run(args):
+    HostEngine.clear_screen()
+    print("\n🔮 xsvCommandCenter [System Menu]")
+    print("=" * 40)
+    
+    print("📦 MODULES (Built-in Tools)")
+    print("-" * 40)
+    for mod in get_modules():
+        print(f"  • {mod:<15}")
+
+    print("\n⚡ MAGIC COMMANDS (Custom Scripts)")
+    print("-" * 40)
+    cmd_launcher.Launcher().list_commands()
+    
+    print("=" * 40)
+    print("Usage: xsv <command> [args]\n")
+
+==================================================
+FILE: .\src\commands\cmd_shell.py
+==================================================
+import sys
+import os
+import socket
+import subprocess
+import shlex
+import getpass
+import importlib
+from pathlib import Path
+from src.core.host_engine import HostEngine
+from src.commands import cmd_launcher
+
+# CONFIG
+DEFAULT_USER = "admin"
+DEFAULT_PASS = "admin"
+
+def login():
+    HostEngine.clear_screen()
+    print("🔒 xsvCommandCenter | SECURE SESSION")
+    print("-" * 35)
+    while True:
+        try:
+            u = input("User: ")
+            p = getpass.getpass("Pass: ")
+            if u == DEFAULT_USER and p == DEFAULT_PASS: return True
+            print("❌ Access Denied.")
+        except KeyboardInterrupt: return False
+
+def run(args):
+    if not login(): return
+    HostEngine.clear_screen()
+    hostname = socket.gethostname()
+    username = os.getlogin()
+    print(f"\n👻 GHOST SHELL ONLINE")
+    print(f"   Target: {username}@{hostname}")
+    print("-" * 40)
+    print("Type 'help' for options. Type 'exit' to disconnect.")
+    print("Type 'reload' to refresh commands after editing.")
+
+    while True:
+        try:
+            cwd = os.getcwd()
+            display_cwd = cwd if len(cwd) <= 30 else "..." + cwd[-30:]
+            prompt = f"xsv@{hostname} [{display_cwd}] > "
+            user_input = input(prompt).strip()
+            if not user_input: continue
+
+            parts = shlex.split(user_input)
+            cmd = parts[0].lower()
+            cmd_args = parts[1:]
+
+            if cmd in ["exit", "quit"]: break
+            if cmd in ["clear", "cls"]: 
+                HostEngine.clear_screen()
+                continue
+            if cmd == "cd":
+                try: os.chdir(cmd_args[0] if cmd_args else ".")
+                except Exception as e: print(f"❌ {e}")
+                continue
+
+            # --- 🔧 RELOAD COMMAND (HOT SWAP) ---
+            if cmd == "reload":
+                # Option A: Reload Specific Module (e.g., 'reload scare')
+                if cmd_args:
+                    target = cmd_args[0]
+                    print(f"♻️  Reloading module: {target}...")
+                    found = False
+                    
+                    # We scan loaded memory for anything matching 'cmd_target'
+                    # This finds 'src.commands.cmd_target' AND 'src.commands.custom.cmd_target'
+                    for mod_name in list(sys.modules.keys()):
+                        if mod_name.endswith(f"cmd_{target}"):
+                            try:
+                                importlib.reload(sys.modules[mod_name])
+                                print(f"✅ Reloaded {mod_name}")
+                                found = True
+                            except Exception as e:
+                                print(f"❌ Error reloading {mod_name}: {e}")
+                    
+                    if not found:
+                        print(f"⚠️  Module '{target}' is not in memory. (Try running it first, then reload).")
+                
+                # Option B: Global Reset (e.g., 'reload')
+                else:
+                    print("♻️  Clearing Global Import Cache...")
+                    importlib.invalidate_caches()
+                    print("✅ Cache Cleared. New files will now be detected.")
+                continue
+
+            # --- ⚡ ESCAPE HATCHES ---
+            if cmd == "exec":
+                subprocess.run(" ".join(parts[1:]), shell=True)
+                continue
+
+            if cmd in ["sh", "cmd", "bash", "powershell"]:
+                shell_cmd = "cmd" if os.name == 'nt' else "bash"
+                if cmd == "powershell": shell_cmd = "powershell"
+                subprocess.call(shell_cmd, shell=True)
+                continue
+
+            # --- 🛣️ SMART ROUTING ---
+            
+            # 1. System Modules (Core)
+            try:
+                module = importlib.import_module(f"src.commands.cmd_{cmd}")
+                module.run(cmd_args)
+                continue
+            except ModuleNotFoundError: pass 
+
+            # 2. Custom Modules (Your Creations)
+            try:
+                module = importlib.import_module(f"src.commands.custom.cmd_{cmd}")
+                module.run(cmd_args)
+                continue
+            except ModuleNotFoundError: pass 
+
+            # 3. Aliases (JSON)
+            if cmd == "info":
+                import src.commands.cmd_host as h
+                h.run(["info"])
+                continue
+            
+            # 4. Magic Launcher
+            launcher = cmd_launcher.Launcher()
+            if launcher.run(cmd): continue
+
+            # 5. Fallback (Host OS)
+            try: subprocess.run(user_input, shell=True)
+            except Exception as e: print(f"❌ System Error: {e}")
+
+        except KeyboardInterrupt:
+            print("\nType 'exit' to quit.")
+
+==================================================
+FILE: .\src\commands\cmd_setup.py
+==================================================
+import sys
+import os
+import platform
+import subprocess
+from pathlib import Path
+
+def ask_yes_no(question):
+    while True:
+        choice = input(f"{question} (y/n): ").lower()
+        if choice == 'y': return True
+        if choice == 'n': return False
+
+def install_windows(root_path):
+    print(" [*] Detected Windows System.")
+    
+    # 1. PATH PROMPT
+    if ask_yes_no(" [?] Add 'xsv' to your User PATH?"):
+        ps_command = f"""
+        $target = '{root_path}'
+        $current = [Environment]::GetEnvironmentVariable('Path', 'User')
+        if ($current -notlike "*$target*") {{
+            [Environment]::SetEnvironmentVariable('Path', $current + ';' + $target, 'User')
+            Write-Output "Path Updated."
+        }} else {{
+            Write-Output "Already in Path."
+        }}
+        """
+        try:
+            subprocess.run(["powershell", "-Command", ps_command], check=True)
+            print("     ✅ Path Updated (Restart terminal to see changes).")
+        except Exception as e:
+            print(f"     ❌ Failed to set PATH: {e}")
+
+    # 2. DESKTOP SHORTCUT PROMPT
+    if ask_yes_no(" [?] Create 'Ghost Shell' Shortcut on Desktop?"):
+        try:
+            desktop = Path(os.environ["USERPROFILE"]) / "Desktop"
+            shortcut_path = desktop / "Ghost Shell.lnk"
+            
+            vbs_script = f"""
+            Set oWS = WScript.CreateObject("WScript.Shell")
+            sLinkFile = "{shortcut_path}"
+            Set oLink = oWS.CreateShortcut(sLinkFile)
+            oLink.TargetPath = "{root_path}\\LAUNCH.bat"
+            oLink.WorkingDirectory = "{root_path}"
+            oLink.IconLocation = "%SystemRoot%\\system32\\SHELL32.dll,72"
+            oLink.Save
+            """
+            
+            vbs_file = root_path / "temp_install.vbs"
+            with open(vbs_file, "w") as f:
+                f.write(vbs_script)
+                
+            subprocess.run(["cscript", "/nologo", str(vbs_file)], check=True)
+            os.remove(vbs_file)
+            print("     ✅ Shortcut Created.")
+            
+        except Exception as e:
+            print(f"     ❌ Failed to create shortcut: {e}")
+
+def run(args):
+    print("\n 📥 xsvCommandCenter SETUP")
+    print(" " + "="*30)
+    
+    root_path = Path(__file__).parent.parent.parent.resolve()
+    
+    if platform.system() == "Windows":
+        install_windows(root_path)
+    elif platform.system() == "Linux":
+        print(" [!] Linux Setup TODO: Add Alias Logic here.")
+    else:
+        print(f" ❌ Unsupported OS.")
+    
+    print("\n ✅ Setup Logic Complete.")
+
+==================================================
+FILE: .\src\commands\cmd_settings.py
+==================================================
+import json
+import os
+from pathlib import Path
+
+SETTINGS_FILE = Path(__file__).parent.parent.parent / "data" / "config" / "user_settings.json"
+
+def load_settings():
+    if not SETTINGS_FILE.exists():
+        return {"theme": "default", "username": "admin", "auto_connect": False}
+    try:
+        with open(SETTINGS_FILE, "r") as f:
+            return json.load(f)
+    except:
+        return {}
+
+def save_settings(data):
+    SETTINGS_FILE.parent.mkdir(parents=True, exist_ok=True)
+    with open(SETTINGS_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+    print("✅ Settings Saved.")
+
+def run(args):
+    if not args:
+        print("\n⚙️  SYSTEM SETTINGS")
+        print("Usage: settings [list | set <key> <value>]")
+        return
+
+    action = args[0].lower()
+    data = load_settings()
+
+    if action == "list":
+        print("\n📝 Current Configuration:")
+        for k, v in data.items():
+            print(f"  • {k}: {v}")
+        print("")
+
+    elif action == "set":
+        if len(args) < 3:
+            print("❌ Usage: settings set <key> <value>")
+            return
+        key = args[1]
+        val = args[2]
+        data[key] = val
+        save_settings(data)
+        print(f"Updated '{key}' to '{val}'")
+
+==================================================
+FILE: .\src\commands\cmd_create.py
+==================================================
+import sys
+import os
+import importlib
+from pathlib import Path
+
+# --- CONFIG ---
+# We point to where the CUSTOM commands live
+CUSTOM_DIR = Path(__file__).parent / "custom"
+
+def create_command_wizard(name=None):
+    """
+    Handles the creation of NEW scripts/tools (The 'Custom' stuff).
+    This logic lives HERE because 'creating a command' is this module's job.
+    """
+    print("\n 🛠️  CREATE CUSTOM COMMAND")
+    print(" " + "="*30)
+
+    if not name:
+        name = input(" [?] Command Name (One word): ").lower().strip()
+    
+    if not name: return
+
+    filename = f"cmd_{name}.py"
+    filepath = CUSTOM_DIR / filename
+    
+    if filepath.exists():
+        print(f" ⚠️  Warning: '{name}' already exists.")
+        if input("     Overwrite? (y/n): ").lower() != 'y': return
+
+    desc = input(" [?] Description: ").strip()
+
+    print("\n [?] Paste Python code. Type 'END' or 'DONE' on new line to finish.")
+    lines = []
+    while True:
+        line = input()
+        if line.strip().upper() in ["END", "DONE"]: break
+        lines.append(line)
+    
+    user_code = "\n    ".join(lines)
+    
+    file_content = f'''import sys
+import os
+
+# Module: {name}
+# Description: {desc}
+
+def run(args):
+    print("\\n🚀 Running Custom Command: {name}...")
+    
+    # --- USER CODE START ---
+    {user_code}
+    # --- USER CODE END ---
+    
+    print("\\n✅ {name} finished.")
+'''
+
+    # Ensure dir exists
+    CUSTOM_DIR.mkdir(parents=True, exist_ok=True)
+    if not (CUSTOM_DIR / "__init__.py").exists():
+        (CUSTOM_DIR / "__init__.py").touch()
+
+    with open(filepath, "w", encoding="utf-8") as f:
+        f.write(file_content)
+
+    print(f" ✅ Created command '{name}' in src/commands/custom/")
+
+def run(args):
+    """
+    The Master Dispatcher.
+    Routes 'todo' to the Todo Module, 'journal' to the Journal Module.
+    """
+    if not args:
+        print("\n✨ CREATION STATION")
+        print("Usage:")
+        print("  create command <name>   -> Build a new tool (Wizard)")
+        print("  create todo <text>      -> Dispatches to Core Todo Module")
+        print("  create journal <text>   -> Dispatches to Core Journal Module")
+        return
+
+    category = args[0].lower()
+    payload = args[1:] # The rest of the words
+
+    # --- ROUTE 1: NEW COMMANDS (Handled Here) ---
+    if category in ["command", "script", "module"]:
+        name = payload[0] if payload else None
+        create_command_wizard(name)
+
+    # --- ROUTE 2: CORE TODO MODULE ---
+    elif category in ["todo", "task"]:
+        try:
+            # We import the CORE module dynamically
+            # This ensures we use the EXACT logic defined in cmd_todo.py
+            todo_module = importlib.import_module("src.commands.cmd_todo")
+            
+            # We construct the arguments as if the user typed 'todo add ...'
+            # If payload is ["Buy", "Milk"], we send ["add", "Buy", "Milk"]
+            dispatch_args = ["add"] + payload
+            
+            print(f" ↪️  Dispatching to Core Todo Module...")
+            todo_module.run(dispatch_args)
+            
+        except ModuleNotFoundError:
+            print(" ❌ Error: Core 'cmd_todo.py' not found!")
+        except Exception as e:
+            print(f" ❌ Dispatch Error: {e}")
+
+    # --- ROUTE 3: CORE JOURNAL MODULE ---
+    elif category in ["journal", "note", "log"]:
+        try:
+            journal_module = importlib.import_module("src.commands.cmd_journal")
+            
+            # Construct args: 'journal add ...'
+            dispatch_args = ["add"] + payload
+            
+            print(f" ↪️  Dispatching to Core Journal Module...")
+            journal_module.run(dispatch_args)
+            
+        except ModuleNotFoundError:
+            print(" ❌ Error: Core 'cmd_journal.py' not found!")
+        except Exception as e:
+            print(f" ❌ Dispatch Error: {e}")
+
+    else:
+        print(f" ❌ Unknown category '{category}'.")
+        print("    Supported: command, todo, journal")
+
+==================================================
+FILE: .\src\commands\cmd_edit.py
+==================================================
+import sys
+import os
+import shutil
+import subprocess
+from pathlib import Path
+
+# CONFIG
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+CUSTOM_DIR = PROJECT_ROOT / "src" / "commands" / "custom"
+CORE_DIR = PROJECT_ROOT / "src" / "commands"
+
+def find_file(name):
+    # 1. Check Custom (Priority)
+    f = CUSTOM_DIR / f"cmd_{name}.py"
+    if f.exists(): return f
+
+    # 2. Check Core
+    f = CORE_DIR / f"cmd_{name}.py"
+    if f.exists(): return f
+    
+    return None
+
+def get_editor():
+    # Priority List of Editors to look for
+    editors = [
+        "code",       # VS Code
+        "subl",       # Sublime Text
+        "notepad",    # Windows Default
+        "nano",       # Linux Default
+        "vi",         # Linux Fallback
+        "vim"         # Linux Fallback
+    ]
+    
+    for ed in editors:
+        if shutil.which(ed):
+            return ed
+            
+    if os.name == 'nt':
+        return "notepad"
+        
+    return None
+
+def run(args):
+    print("\n📝 EDITOR LAUNCHER")
+    print("-------------------")
+    
+    if not args:
+        print("Usage: edit <command_name>")
+        return
+
+    target = args[0].lower()
+    
+    # 1. Find the file
+    file_path = find_file(target)
+    if not file_path:
+        print(f"❌ Could not find command 'cmd_{target}.py'")
+        print(f"   Checked: {CUSTOM_DIR}")
+        print(f"   Checked: {CORE_DIR}")
+        return
+
+    # 2. Find an editor
+    editor = get_editor()
+    if not editor:
+        print("❌ No text editor found (VS Code, Notepad, Nano, etc).")
+        return
+
+    print(f"📂 Opening '{target}' in {editor.upper()}...")
+    
+    # 3. Launch it
+    try:
+        if editor == "notepad":
+            subprocess.run([editor, str(file_path)])
+        else:
+            # VS Code/Sublime/Nano might need shell=True depending on OS
+            subprocess.call([editor, str(file_path)], shell=True)
+            
+        # --- YOUR CUSTOM MESSAGE ---
+        print("\n👀 Look around for a text editor, Blynd.")
+        print("   (Don't forget to 'reload' the command after you save!)")
+        
+    except Exception as e:
+        print(f"❌ Failed to launch editor: {e}")
+
+==================================================
+FILE: .\src\commands\desktop.ini
+==================================================
+[ . S h e l l C l a s s I n f o ] 
+ 
+ C o n f i r m F i l e O p = 0 
+ 
+ I c o n R e s o u r c e = C : \ P r o g r a m   F i l e s \ G o o g l e \ D r i v e   F i l e   S t r e a m \ 1 2 0 . 0 . 1 . 0 \ G o o g l e D r i v e F S . e x e , 2 7 
+ 
+ 
+
+==================================================
+FILE: .\src\commands\custom\__init__.py
+==================================================
+
+
+==================================================
+FILE: .\src\commands\custom\cmd_scare.py
+==================================================
+import sys
+import os
+import threading  # <--- 1. Import This
+import tkinter as tk
+from tkinter import messagebox
+
+# Module: scare
+# Description: Scare the wife
+
+# 2. Move your logic into a separate function
+def popup_logic():
+    root = tk.Tk()
+    root.withdraw()
+    messagebox.showwarning("SYSTEM ERROR", "Critical Warning: You have been HACKED!")
+    root.destroy()
+
+def run(args):
+    print("\n🚀 Running Custom Command: scare...")
+    print("   (Sending to background...)")
+    
+    # 3. Launch it as a Background Thread
+    # 'daemon=True' means it will close if you close the main shell
+    t = threading.Thread(target=popup_logic, daemon=True)
+    t.start()
+    
+    print("✅ scare launched. (Terminal is free).")
+
+==================================================
+FILE: .\src\commands\custom\desktop.ini
+==================================================
+[ . S h e l l C l a s s I n f o ] 
+ 
+ C o n f i r m F i l e O p = 0 
+ 
+ I c o n R e s o u r c e = C : \ P r o g r a m   F i l e s \ G o o g l e \ D r i v e   F i l e   S t r e a m \ 1 2 0 . 0 . 1 . 0 \ G o o g l e D r i v e F S . e x e , 2 7 
+ 
+ 
+
+==================================================
+FILE: .\src\core\host_bridge.py
+==================================================
+import os
+import sys
+import platform
+import subprocess
+import shutil
+import json
+from pathlib import Path
+
+class HostBridge:
+    @staticmethod
+    def get_os_type():
+        """Returns: windows, macos, chromeos, or linux"""
+        s = platform.system().lower()
+        if s == "darwin": return "macos"
+        if s == "windows": return "windows"
+        if os.path.exists("/etc/os-release"):
+            try:
+                with open("/etc/os-release") as f:
+                    data = f.read().lower()
+                    if "chromeos" in data or "cros" in data: return "chromeos"
+            except: pass
+        return "linux"
+
+    @staticmethod
+    def clear_screen():
+        os.system("cls" if os.name == "nt" else "clear")
+
+    @staticmethod
+    def launch(path):
+        p = Path(path)
+        if not p.exists(): return False
+        s = HostBridge.get_os_type()
+        try:
+            if s == "windows": os.startfile(p)
+            elif s == "linux" or s == "chromeos": subprocess.run(["xdg-open", str(p)])
+            else: subprocess.run(["open", str(p)])
+            return True
+        except: return False
+
+    @staticmethod
+    def list_path(target="."):
+        p = Path(target)
+        if not p.exists(): return None
+        items = []
+        try:
+            for i in p.iterdir():
+                items.append({
+                    "name": i.name, 
+                    "type": "DIR" if i.is_dir() else "FILE",
+                    "size": i.stat().st_size if i.is_file() else 0
+                })
+            return sorted(items, key=lambda x: (x["type"]=="FILE", x["name"]))
+        except: return []
+
+    @staticmethod
+    def nuke_path(target):
+        p = Path(target)
+        if not p.exists(): return False
+        try:
+            if p.is_dir(): shutil.rmtree(p)
+            else: os.remove(p)
+            return True
+        except: return False
+
+    @staticmethod
+    def get_processes():
+        cmd = ["tasklist"] if os.name == "nt" else ["ps", "-e"]
+        try: return subprocess.check_output(cmd, encoding="utf-8", errors="ignore").splitlines()
+        except: return []
+
+    @staticmethod
+    def get_deep_info():
+        s = platform.system()
+        info = {
+            "OS": f"{s} {platform.release()}",
+            "Build": platform.version(),
+            "Disks": [],
+            "GPUs": [],
+            "Network": [],
+            "Cloud": [],
+            "USB_Devices": []
+        }
+        
+        if s == "Windows":
+            # Advanced PowerShell Script for Enthusiast Hardware
+            ps_script = r"""
+            $ErrorActionPreference = "SilentlyContinue"
+            
+            # 1. CPU & Motherboard
+            $cpu = Get-CimInstance Win32_Processor
+            $mobo = Get-CimInstance Win32_BaseBoard
+            
+            # 2. RAM Details
+            $ram_sticks = Get-CimInstance Win32_PhysicalMemory
+            $ram_total = ($ram_sticks | Measure-Object -Property Capacity -Sum).Sum / 1GB
+            
+            # 3. ALL GPUs (Not just the first one)
+            $gpus = Get-CimInstance Win32_VideoController | Select-Object Name, AdapterRAM, DriverVersion
+            
+            # 4. Storage & Drives
+            $disks = Get-PhysicalDisk | Select-Object FriendlyName, MediaType, Size, BusType
+            $logic = Get-PSDrive -PSProvider FileSystem | Select-Object Name, Root, Description
+            
+            # 5. Network
+            $net = Get-NetAdapter | Where-Object Status -eq 'Up'
+            
+            # 6. USB/Cooling Scan (Looking for specific enthusiast keywords)
+            $usb = Get-PnpDevice -Class 'USB', 'HIDClass' -Status 'OK' | Where-Object { $_.FriendlyName -match 'Corsair|NZXT|Liquid|Pump|AIO|Cooler|Hub|Commander' } | Select-Object FriendlyName
+
+            $info = @{
+                CPU = $cpu.Name
+                Cores = $cpu.NumberOfCores
+                Mobo = "$($mobo.Manufacturer) $($mobo.Product)"
+                RAM_Total = [math]::Round($ram_total, 1)
+                GPUs = @($gpus)
+                Disks = @($disks)
+                Drives = @($logic)
+                Network = @($net | Select-Object Name, MacAddress)
+                USB_Devices = @($usb)
+            }
+            $info | ConvertTo-Json -Depth 3 -Compress
+            """
+            try:
+                res = subprocess.check_output(["powershell", "-NoProfile", "-Command", ps_script], encoding="utf-8", errors="ignore")
+                data = json.loads(res)
+                info.update(data)
+                
+                # --- CLOUD DETECTION LOGIC ---
+                # Check 1: User Folder
+                home = Path.home()
+                if (home / "OneDrive").exists(): 
+                    info["Cloud"].append({"name": "OneDrive", "path": str(home / "OneDrive")})
+                
+                # Check 2: Virtual Drives (G: is standard for Google Drive)
+                for d in data.get("Drives", []):
+                    root = d.get("Root", "").upper()
+                    if root == "G:\\":
+                        info["Cloud"].append({"name": "Google Drive (Virtual)", "path": "G:\\"})
+                    elif "Google" in d.get("Description", ""):
+                        info["Cloud"].append({"name": "Google Drive", "path": root})
+
+            except Exception as e: info["Error"] = str(e)
+            
+        return info
+
+==================================================
+FILE: .\src\core\vault_api.py
+==================================================
+import os
+import datetime
+import json
+from pathlib import Path
+
+class VaultAPI:
+    def __init__(self):
+        # Dynamically find the project root
+        self.root = Path(__file__).parent.parent.parent
+        self.data_dir = self.root / "data"
+        self.vault_dir = self.data_dir / "vault"
+        
+        self.journal_dir = self.vault_dir / "journal"
+        self.lists_dir = self.vault_dir / "lists"
+        
+        # Ensure Critical Folders Exist
+        for d in [self.journal_dir, self.lists_dir]:
+            d.mkdir(parents=True, exist_ok=True)
+
+    # --- JOURNAL SYSTEM ---
+    def get_journal_path(self, date_str=None):
+        if not date_str:
+            date_str = datetime.datetime.now().strftime("%Y-%m-%d")
+        return self.journal_dir / f"{date_str}.md"
+
+    def append_journal(self, title, content):
+        target = self.get_journal_path()
+        now = datetime.datetime.now()
+        timestamp = now.strftime("%I:%M %p")
+        
+        # Create header if new day
+        header = ""
+        if not target.exists():
+            header = f"# Journal: {now.strftime('%Y-%m-%d')}\n\n"
+            
+        entry = f"\n## {timestamp} - {title}\n{content}\n\n---\n"
+        
+        try:
+            with open(target, "a", encoding="utf-8") as f:
+                if header: f.write(header)
+                f.write(entry)
+            return True, target
+        except Exception as e:
+            return False, str(e)
+
+    def read_journal(self, date_str=None):
+        target = self.get_journal_path(date_str)
+        if not target.exists():
+            return "📭 No entries found."
+        with open(target, "r", encoding="utf-8") as f:
+            return f.read()
+
+    # --- LISTS / TODO SYSTEM ---
+    def get_list_path(self, list_name="todo"):
+        return self.lists_dir / f"{list_name}.md"
+
+    def add_todo(self, item, list_name="todo"):
+        target = self.get_list_path(list_name)
+        # Format: - [ ] Buy Milk
+        entry = f"- [ ] {item}\n"
+        with open(target, "a", encoding="utf-8") as f:
+            f.write(entry)
+        return target
+
+    def get_todos(self, list_name="todo"):
+        target = self.get_list_path(list_name)
+        if not target.exists():
+            return []
+        with open(target, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        # Return list of (index, text, is_done)
+        todos = []
+        for i, line in enumerate(lines):
+            line = line.strip()
+            if line.startswith("- [ ]"):
+                todos.append({"id": i, "text": line[6:], "done": False, "raw": line})
+            elif line.startswith("- [x]"):
+                todos.append({"id": i, "text": line[6:], "done": True, "raw": line})
+        return todos
+
+    def complete_todo(self, index, list_name="todo"):
+        target = self.get_list_path(list_name)
+        if not target.exists(): return False
+        
+        with open(target, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        
+        if 0 <= index < len(lines):
+            if lines[index].startswith("- [ ]"):
+                lines[index] = lines[index].replace("- [ ]", "- [x]", 1)
+                with open(target, "w", encoding="utf-8") as f:
+                    f.writelines(lines)
+                return True
+        return False
+
+==================================================
+FILE: .\src\core\info_engine.py
+==================================================
+import platform
+import subprocess
+import json
+import os
+from pathlib import Path
+
+class InfoEngine:
+    @staticmethod
+    def get_cloud_paths():
+        """Detects Cloud Storage Mounts"""
+        home = Path.home()
+        clouds = []
+        
+        # 1. OneDrive
+        onedrive = os.environ.get("OneDrive")
+        if onedrive and Path(onedrive).exists():
+            clouds.append({"name": "OneDrive", "path": onedrive})
+            
+        # 2. Google Drive (Virtual G: or Folder)
+        gdrive = home / "Google Drive"
+        if gdrive.exists(): 
+            clouds.append({"name": "Google Drive", "path": str(gdrive)})
+        
+        # Check for Virtual Drives (G:)
+        if os.name == "nt":
+            if Path("G:/").exists():
+                clouds.append({"name": "Google Drive (Virtual)", "path": "G:/"})
+
+        return clouds
+
+    @staticmethod
+    def scan_windows_deep():
+        # The 'CPU-Z' Style Scanner using PowerShell
+        ps_script = r"""
+        $ErrorActionPreference = "SilentlyContinue"
+
+        # --- MOTHERBOARD & BIOS ---
+        $bios = Get-CimInstance Win32_BIOS
+        $base = Get-CimInstance Win32_BaseBoard
+        $cs = Get-CimInstance Win32_ComputerSystem
+
+        # --- CPU DETAIL ---
+        $cpu = Get-CimInstance Win32_Processor
+        
+        # --- RAM DETAILED (Stick by Stick) ---
+        $mem = Get-CimInstance Win32_PhysicalMemory | Select-Object Manufacturer, PartNumber, Speed, Capacity, DeviceLocator
+
+        # --- GPU DETAILED ---
+        $gpu = Get-CimInstance Win32_VideoController | Select-Object Name, VideoProcessor, DriverVersion, AdapterRAM, CurrentRefreshRate
+
+        # --- STORAGE (NVMe/SSD distinction) ---
+        $disk = Get-PhysicalDisk | Select-Object FriendlyName, MediaType, BusType, Size, Model, FirmwareVersion
+
+        # --- NETWORK (MAC & Connection) ---
+        $net = Get-NetAdapter | Where-Object Status -eq 'Up' | Select-Object Name, InterfaceDescription, MacAddress, LinkSpeed
+
+        # --- USB DEVICES (Coolers/Hubs) ---
+        # Looking for specific enthusiast gear
+        $usb = Get-PnpDevice -Class 'USB', 'HIDClass' -Status 'OK' | Where-Object { $_.FriendlyName -match 'Corsair|NZXT|Liquid|Pump|AIO|Cooler|Hub|Commander|Link|Kraken' } | Select-Object FriendlyName
+
+        $info = @{
+            System = @{
+                Hostname = $cs.Name
+                Model = $cs.Model
+                Manufacturer = $cs.Manufacturer
+            }
+            BIOS = @{
+                Version = $bios.SMBIOSBIOSVersion
+                Date = $bios.ReleaseDate
+                Serial = $bios.SerialNumber
+            }
+            Mobo = @{
+                Make = $base.Manufacturer
+                Model = $base.Product
+                Serial = $base.SerialNumber
+            }
+            CPU = @{
+                Name = $cpu.Name
+                Cores = $cpu.NumberOfCores
+                Threads = $cpu.NumberOfLogicalProcessors
+                Socket = $cpu.SocketDesignation
+            }
+            RAM_Sticks = @($mem)
+            GPUs = @($gpu)
+            Disks = @($disk)
+            Network = @($net)
+            Cooling = @($usb)
+        }
+        $info | ConvertTo-Json -Depth 4 -Compress
+        """
+        try:
+            res = subprocess.check_output(["powershell", "-NoProfile", "-Command", ps_script], encoding="utf-8", errors="ignore")
+            return json.loads(res)
+        except Exception as e:
+            return {"Error": str(e)}
+
+    @staticmethod
+    def get_report():
+        """Orchestrates the scan based on OS"""
+        info = {
+            "OS_Type": platform.system(),
+            "Cloud": InfoEngine.get_cloud_paths(),
+            "Data": {}
+        }
+        
+        if info["OS_Type"] == "Windows":
+            info["Data"] = InfoEngine.scan_windows_deep()
+        elif info["OS_Type"] == "Linux":
+            info["Data"] = {"Status": "Basic Linux Scan (TODO: Implement lscpu)"}
+            
+        return info
+
+==================================================
+FILE: .\src\core\host_engine.py
+==================================================
+import os
+import sys
+import platform
+import subprocess
+import shutil
+from pathlib import Path
+from src.core.info_engine import InfoEngine
+
+class HostEngine:
+    @staticmethod
+    def clear_screen():
+        os.system("cls" if os.name == "nt" else "clear")
+
+    @staticmethod
+    def launch(path):
+        """Universal Open/Launch"""
+        p = Path(path)
+        if not p.exists(): return False
+        
+        s = platform.system().lower()
+        try:
+            if s == "windows": os.startfile(p)
+            elif s == "darwin": subprocess.run(["open", str(p)])
+            else: subprocess.run(["xdg-open", str(p)]) # Linux/ChromeOS
+            return True
+        except: return False
+
+    @staticmethod
+    def list_dir(target="."):
+        p = Path(target)
+        if not p.exists(): return None
+        items = []
+        try:
+            for i in p.iterdir():
+                items.append({
+                    "name": i.name, 
+                    "type": "DIR" if i.is_dir() else "FILE",
+                    "size": i.stat().st_size if i.is_file() else 0
+                })
+            return sorted(items, key=lambda x: (x["type"]=="FILE", x["name"]))
+        except: return []
+
+    @staticmethod
+    def nuke(target):
+        p = Path(target)
+        if not p.exists(): return False
+        try:
+            if p.is_dir(): shutil.rmtree(p)
+            else: os.remove(p)
+            return True
+        except: return False
+
+    @staticmethod
+    def get_procs():
+        cmd = ["tasklist"] if os.name == "nt" else ["ps", "-e"]
+        try: 
+            return subprocess.check_output(cmd, encoding="utf-8", errors="ignore").splitlines()
+        except: return []
+
+    @staticmethod
+    def run_sys_command(command):
+        """Runs a raw system command (ping, ipconfig, etc.) safely"""
+        try:
+            subprocess.run(command, shell=True)
+            return True
+        except Exception as e:
+            print(f"❌ Execution Error: {e}")
+            return False
+
+    @staticmethod
+    def get_info():
+        return InfoEngine.get_report()
+
+==================================================
+FILE: .\src\core\desktop.ini
+==================================================
+[ . S h e l l C l a s s I n f o ] 
+ 
+ C o n f i r m F i l e O p = 0 
+ 
+ I c o n R e s o u r c e = C : \ P r o g r a m   F i l e s \ G o o g l e \ D r i v e   F i l e   S t r e a m \ 1 2 0 . 0 . 1 . 0 \ G o o g l e D r i v e F S . e x e , 2 7 
+ 
+ 
+
+==================================================
+FILE: .\data\desktop.ini
+==================================================
+[ . S h e l l C l a s s I n f o ] 
+ 
+ C o n f i r m F i l e O p = 0 
+ 
+ I c o n R e s o u r c e = C : \ P r o g r a m   F i l e s \ G o o g l e \ D r i v e   F i l e   S t r e a m \ 1 2 0 . 0 . 1 . 0 \ G o o g l e D r i v e F S . e x e , 2 7 
+ 
+ 
+
+==================================================
+FILE: .\data\vault\desktop.ini
+==================================================
+[ . S h e l l C l a s s I n f o ] 
+ 
+ C o n f i r m F i l e O p = 0 
+ 
+ I c o n R e s o u r c e = C : \ P r o g r a m   F i l e s \ G o o g l e \ D r i v e   F i l e   S t r e a m \ 1 2 0 . 0 . 1 . 0 \ G o o g l e D r i v e F S . e x e , 2 7 
+ 
+ 
+
+==================================================
+FILE: .\data\vault\journal\2026-02-09.md
+==================================================
+
+## [10:17:38] Entry
+Initializing the Vault memory systems.
+
+
+==================================================
+FILE: .\data\vault\journal\desktop.ini
+==================================================
+[ . S h e l l C l a s s I n f o ] 
+ 
+ C o n f i r m F i l e O p = 0 
+ 
+ I c o n R e s o u r c e = C : \ P r o g r a m   F i l e s \ G o o g l e \ D r i v e   F i l e   S t r e a m \ 1 2 0 . 0 . 1 . 0 \ G o o g l e D r i v e F S . e x e , 2 7 
+ 
+ 
+
+==================================================
+FILE: .\data\vault\notes\desktop.ini
+==================================================
+[ . S h e l l C l a s s I n f o ] 
+ 
+ C o n f i r m F i l e O p = 0 
+ 
+ I c o n R e s o u r c e = C : \ P r o g r a m   F i l e s \ G o o g l e \ D r i v e   F i l e   S t r e a m \ 1 2 0 . 0 . 1 . 0 \ G o o g l e D r i v e F S . e x e , 2 7 
+ 
+ 
+
+==================================================
+FILE: .\data\vault\lists\todo.md
+==================================================
+- [ ] Verify V2 Architecture
+- [ ] Test the dispatcher
+
+
+==================================================
+FILE: .\data\vault\lists\desktop.ini
+==================================================
+[ . S h e l l C l a s s I n f o ] 
+ 
+ C o n f i r m F i l e O p = 0 
+ 
+ I c o n R e s o u r c e = C : \ P r o g r a m   F i l e s \ G o o g l e \ D r i v e   F i l e   S t r e a m \ 1 2 0 . 0 . 1 . 0 \ G o o g l e D r i v e F S . e x e , 2 7 
+ 
+ 
+
+==================================================
+FILE: .\data\config\commands.json
+==================================================
+{
+  "commands": {
+    "ping": {
+      "type": "shell",
+      "cmd": "ping google.com",
+      "description": "Test Internet Connection"
+    },
+    "restore": {
+      "type": "script",
+      "path": "library/restore_xsv.ps1",
+      "description": "Run the Restore Script"
+    },
+    "matrix": {
+      "type": "script",
+      "path": "library/matrix.py",
+      "description": "Run the Matrix Prank"
+    },
+    "menu": {
+      "type": "shell",
+      "cmd": "xsv help",
+      "description": "Show Help Menu"
+    },
+    "?": {
+      "type": "shell",
+      "cmd": "xsv help",
+      "description": "Show Help Menu"
+    }
+  }
+}
+
+==================================================
+FILE: .\data\config\desktop.ini
+==================================================
+[ . S h e l l C l a s s I n f o ] 
+ 
+ C o n f i r m F i l e O p = 0 
+ 
+ I c o n R e s o u r c e = C : \ P r o g r a m   F i l e s \ G o o g l e \ D r i v e   F i l e   S t r e a m \ 1 2 0 . 0 . 1 . 0 \ G o o g l e D r i v e F S . e x e , 2 7 
+ 
+ 
+
+==================================================
+FILE: .\tests\desktop.ini
+==================================================
+[ . S h e l l C l a s s I n f o ] 
+ 
+ C o n f i r m F i l e O p = 0 
+ 
+ I c o n R e s o u r c e = C : \ P r o g r a m   F i l e s \ G o o g l e \ D r i v e   F i l e   S t r e a m \ 1 2 0 . 0 . 1 . 0 \ G o o g l e D r i v e F S . e x e , 2 7 
+ 
+ 
+
+==================================================
+FILE: .\library\matrix_prank.py
+==================================================
+import time
+import random
+import shutil
+
+# Get terminal size
+cols = shutil.get_terminal_size().columns
+
+print("\033[32m") # Set color to Green
+try:
+    while True:
+        # Generate random binary string
+        line = "".join(random.choice(["0", "1", " ", " "]) for _ in range(cols))
+        print(line)
+        time.sleep(0.05)
+except KeyboardInterrupt:
+    print("\033[0m") # Reset color
+    print("\n[SYSTEM BREACH DETECTED]")
+
+==================================================
+FILE: .\library\desktop.ini
+==================================================
+[ . S h e l l C l a s s I n f o ] 
+ 
+ C o n f i r m F i l e O p = 0 
+ 
+ I c o n R e s o u r c e = C : \ P r o g r a m   F i l e s \ G o o g l e \ D r i v e   F i l e   S t r e a m \ 1 2 0 . 0 . 1 . 0 \ G o o g l e D r i v e F S . e x e , 2 7 
+ 
+ 
