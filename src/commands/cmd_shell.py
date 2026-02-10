@@ -5,6 +5,7 @@ import subprocess
 import shlex
 import getpass
 import importlib
+import json
 from pathlib import Path
 from src.core.host_engine import HostEngine
 from src.commands import cmd_launcher
@@ -12,6 +13,18 @@ from src.commands import cmd_launcher
 # CONFIG
 DEFAULT_USER = "admin"
 DEFAULT_PASS = "admin"
+
+def get_version_display():
+    """Reads the current version from data/version.json"""
+    try:
+        path = Path(__file__).parent.parent.parent / "data" / "version.json"
+        if path.exists():
+            with open(path, "r") as f:
+                d = json.load(f)
+                return f"v{d['major']}.{d['minor']}.{d['patch']} (Build {d['build']})"
+    except:
+        pass
+    return "v6.0-Ghost"
 
 def login():
     HostEngine.clear_screen()
@@ -26,16 +39,22 @@ def login():
         except KeyboardInterrupt: return False
 
 def run(args):
+    # 1. Login Logic
     if not login(): return
+    
+    # 2. Setup Display
     HostEngine.clear_screen()
     hostname = socket.gethostname()
     username = os.getlogin()
-    print(f"\n👻 GHOST SHELL ONLINE")
+    ver_tag = get_version_display() # <--- Gets the version here
+    
+    print(f"\n👻 GHOST SHELL ONLINE [{ver_tag}]")
     print(f"   Target: {username}@{hostname}")
     print("-" * 40)
     print("Type 'help' for options. Type 'exit' to disconnect.")
     print("Type 'reload' to refresh commands after editing.")
 
+    # 3. Main Infinite Loop
     while True:
         try:
             cwd = os.getcwd()
@@ -59,14 +78,10 @@ def run(args):
 
             # --- 🔧 RELOAD COMMAND (HOT SWAP) ---
             if cmd == "reload":
-                # Option A: Reload Specific Module (e.g., 'reload scare')
                 if cmd_args:
                     target = cmd_args[0]
                     print(f"♻️  Reloading module: {target}...")
                     found = False
-                    
-                    # We scan loaded memory for anything matching 'cmd_target'
-                    # This finds 'src.commands.cmd_target' AND 'src.commands.custom.cmd_target'
                     for mod_name in list(sys.modules.keys()):
                         if mod_name.endswith(f"cmd_{target}"):
                             try:
@@ -75,11 +90,8 @@ def run(args):
                                 found = True
                             except Exception as e:
                                 print(f"❌ Error reloading {mod_name}: {e}")
-                    
                     if not found:
                         print(f"⚠️  Module '{target}' is not in memory. (Try running it first, then reload).")
-                
-                # Option B: Global Reset (e.g., 'reload')
                 else:
                     print("♻️  Clearing Global Import Cache...")
                     importlib.invalidate_caches()
@@ -119,9 +131,10 @@ def run(args):
                 h.run(["info"])
                 continue
             
-            # 4. Magic Launcher
+            # 4. Magic Launcher (Library & Aliases)
             launcher = cmd_launcher.Launcher()
-            if launcher.run(cmd): continue
+            # CHANGE: This now correctly passes args to your library scripts
+            if launcher.run(cmd, cmd_args): continue
 
             # 5. Fallback (Host OS)
             try: subprocess.run(user_input, shell=True)

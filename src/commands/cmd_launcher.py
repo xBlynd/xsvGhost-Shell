@@ -1,6 +1,8 @@
 import sys
+import os
 import json
 import subprocess
+import shutil
 from pathlib import Path
 from src.core.host_bridge import HostBridge
 
@@ -17,41 +19,56 @@ class Launcher:
                 return json.load(f).get("commands", {})
         except: return {}
 
-    def list_commands(self):
-        cmds = self.load_commands()
-        if not cmds: return
-        print("\n⚡ MAGIC COMMANDS (commands.json):")
-        print(f"{'COMMAND':<15} {'DESCRIPTION'}")
-        print("-" * 40)
-        for name, data in cmds.items():
-            print(f"{name:<15} {data.get('description', '')}")
-        print("")
+    def get_library_script(self, cmd_name):
+        if not self.library_path.exists(): return None
+        # Priority: Python > Node > PowerShell > Bash > Batch > Exe
+        extensions = [".py", ".js", ".ps1", ".sh", ".bat", ".cmd", ".exe"]
+        for ext in extensions:
+            script_path = self.library_path / (cmd_name + ext)
+            if script_path.exists(): return script_path
+        return None
 
-    def run(self, command_name):
-        commands = self.load_commands()
-        if command_name not in commands: return False
+    def execute_script(self, path, args):
+        ext = path.suffix.lower()
+        cmd_str = str(path)
+        try:
+            if ext == ".js":
+                if shutil.which("node"): subprocess.run(["node", cmd_str] + args, check=False)
+                else: print("❌ Node.js not found.")
+            elif ext == ".py":
+                subprocess.run([sys.executable, cmd_str] + args, check=False)
+            elif ext == ".ps1":
+                exe = "pwsh" if shutil.which("pwsh") else "powershell"
+                if shutil.which(exe): subprocess.run([exe, "-ExecutionPolicy", "Bypass", "-File", cmd_str] + args, check=False)
+            elif ext == ".sh":
+                if shutil.which("bash"): subprocess.run(["bash", cmd_str] + args, check=False)
+            elif ext in [".bat", ".cmd"]:
+                 if os.name == 'nt': subprocess.run(f'"{cmd_str}" {" ".join(args)}', shell=True, check=False)
+            elif ext == ".exe":
+                subprocess.run([cmd_str] + args, check=False)
+            else:
+                HostBridge.launch(cmd_str)
+            return True
+        except Exception as e:
+            print(f"❌ Execution failed: {e}")
+            return False
 
-        cfg = commands[command_name]
-        print(f"🚀 Launching: {cfg.get('description', command_name)}...")
-
-        if cfg.get("confirm", False):
-            if input("⚠️  Are you sure? (y/n): ").lower() != "y":
-                print("🛑 Cancelled.")
+    def run(self, cmd, args):
+        # 1. Aliases
+        aliases = self.load_commands()
+        if cmd in aliases:
+            cfg = aliases[cmd]
+            if cfg.get("confirm", False):
+                 if input("⚠️  Sure? (y/n): ").lower() != "y": return True
+            if cfg['type'] == 'script': return self.execute_script(self.root / cfg['path'], args)
+            elif cfg['type'] == 'shell': 
+                subprocess.run(f"{cfg['cmd']} {' '.join(args)}", shell=True)
                 return True
 
-        try:
-            if cfg['type'] == 'script':
-                # Check library first, then relative path
-                script_path = self.library_path / Path(cfg['path']).name
-                if not script_path.exists():
-                    script_path = self.root / cfg['path']
-                
-                HostBridge.launch(str(script_path))
-                
-            elif cfg['type'] == 'shell':
-                subprocess.run(cfg['cmd'], shell=True)
-                
-            print("✅ Done.")
-        except Exception as e:
-            print(f"❌ Error: {e}")
-        return True
+        # 2. Library Auto-Discovery
+        script_path = self.get_library_script(cmd)
+        if script_path:
+            print(f"📜 Library Found: {script_path.name}")
+            return self.execute_script(script_path, args)
+
+        return False
