@@ -10,14 +10,36 @@ class VaultAPI:
         self.data_dir = self.root / "data"
         self.vault_dir = self.data_dir / "vault"
         
+        # New Category-based Folders
         self.journal_dir = self.vault_dir / "journal"
-        self.lists_dir = self.vault_dir / "lists"
+        self.notes_dir = self.vault_dir / "notes"
+        self.todo_dir = self.vault_dir / "todo"
+        self.reminders_dir = self.vault_dir / "reminders"
+        self.docs_dir = self.vault_dir / "documents"
         
-        # Ensure Critical Folders Exist
-        for d in [self.journal_dir, self.lists_dir]:
+        # Ensure all core vault folders exist [cite: 125, 144]
+        for d in [self.journal_dir, self.notes_dir, self.todo_dir, self.reminders_dir, self.docs_dir]:
             d.mkdir(parents=True, exist_ok=True)
 
-    # --- JOURNAL SYSTEM ---
+    # --- NEW DYNAMIC TODO SYSTEM ---
+    def get_tasks(self, category="work"):
+        """Reads a category-specific JSON file (e.g., work.json)."""
+        file_path = self.todo_dir / f"{category.lower()}.json"
+        if not file_path.exists():
+            return []
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            return []
+
+    def save_tasks(self, category, tasks):
+        """Saves tasks to their specific category file."""
+        file_path = self.todo_dir / f"{category.lower()}.json"
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(tasks, f, indent=4)
+
+    # --- JOURNAL SYSTEM (Existing Workflow Maintained) ---
     def get_journal_path(self, date_str=None):
         if not date_str:
             date_str = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -28,7 +50,6 @@ class VaultAPI:
         now = datetime.datetime.now()
         timestamp = now.strftime("%I:%M %p")
         
-        # Create header if new day
         header = ""
         if not target.exists():
             header = f"# Journal: {now.strftime('%Y-%m-%d')}\n\n"
@@ -43,52 +64,14 @@ class VaultAPI:
         except Exception as e:
             return False, str(e)
 
-    def read_journal(self, date_str=None):
-        target = self.get_journal_path(date_str)
-        if not target.exists():
-            return "📭 No entries found."
-        with open(target, "r", encoding="utf-8") as f:
-            return f.read()
-
-    # --- LISTS / TODO SYSTEM ---
-    def get_list_path(self, list_name="todo"):
-        return self.lists_dir / f"{list_name}.md"
-
-    def add_todo(self, item, list_name="todo"):
-        target = self.get_list_path(list_name)
-        # Format: - [ ] Buy Milk
-        entry = f"- [ ] {item}\n"
-        with open(target, "a", encoding="utf-8") as f:
-            f.write(entry)
-        return target
-
-    def get_todos(self, list_name="todo"):
-        target = self.get_list_path(list_name)
-        if not target.exists():
-            return []
-        with open(target, "r", encoding="utf-8") as f:
-            lines = f.readlines()
-        # Return list of (index, text, is_done)
-        todos = []
-        for i, line in enumerate(lines):
-            line = line.strip()
-            if line.startswith("- [ ]"):
-                todos.append({"id": i, "text": line[6:], "done": False, "raw": line})
-            elif line.startswith("- [x]"):
-                todos.append({"id": i, "text": line[6:], "done": True, "raw": line})
-        return todos
-
-    def complete_todo(self, index, list_name="todo"):
-        target = self.get_list_path(list_name)
-        if not target.exists(): return False
-        
-        with open(target, "r", encoding="utf-8") as f:
-            lines = f.readlines()
-        
-        if 0 <= index < len(lines):
-            if lines[index].startswith("- [ ]"):
-                lines[index] = lines[index].replace("- [ ]", "- [x]", 1)
-                with open(target, "w", encoding="utf-8") as f:
-                    f.writelines(lines)
-                return True
-        return False
+    # --- REMINDER HOOKS ---
+    def get_all_due_tasks(self):
+        """Used by the Reminder Engine to scan across ALL categories."""
+        all_due = []
+        for file in self.todo_dir.glob("*.json"):
+            category = file.stem
+            tasks = self.get_tasks(category)
+            for t in tasks:
+                if t.get("due_date") and not t.get("notified"):
+                    all_due.append({"category": category, "task": t})
+        return all_due
