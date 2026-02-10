@@ -1,11 +1,4 @@
-import sys
-import os
-import socket
-import subprocess
-import shlex
-import getpass
-import importlib
-import json
+import sys, os, socket, subprocess, shlex, getpass, importlib, json, threading, time
 from pathlib import Path
 from src.core.host_engine import HostEngine
 from src.commands import cmd_launcher
@@ -37,44 +30,49 @@ def login():
             print("❌ Access Denied.")
         except KeyboardInterrupt: return False
 
+def reminder_worker():
+    """The Background Heartbeat Thread."""
+    # We use a global variable so we can 'kill' the thread logic on reload
+    while getattr(threading.current_thread(), "do_run", True):
+        try:
+            cfg_path = Path(__file__).parent.parent.parent / "data" / "config" / "reminders.json"
+            cfg = {"terminal_alerts": True, "popup_alerts": True, "check_interval_seconds": 30}
+            if cfg_path.exists():
+                with open(cfg_path, "r") as f: cfg = json.load(f)
+
+            # Reload the engine logic dynamically inside the thread
+            importlib.reload(sys.modules['src.core.reminder_engine'])
+            from src.core.reminder_engine import ReminderEngine
+            
+            due = ReminderEngine.check_reminders()
+            for item in due:
+                title = f"🔔 {item['category'].upper()} REMINDER"
+                msg = item['task']['title']
+                if cfg.get("terminal_alerts"): print(f"\n\n{title}\n> {msg}\n")
+                if cfg.get("popup_alerts"): ReminderEngine.show_popup(title, msg)
+                ReminderEngine.silence(item['category'], item['task']['id'])
+            
+            time.sleep(cfg.get("check_interval_seconds", 30))
+        except: time.sleep(10)
+
 def run(args):
     if not login(): return
     
+    # Start the background thread
+    t = threading.Thread(target=reminder_worker, daemon=True)
+    t.do_run = True
+    t.start()
+    
     HostEngine.clear_screen()
     hostname = socket.gethostname()
-    username = os.getlogin()
-    ver_tag = get_version_display()
-    
-    print(f"\n👻 GHOST SHELL ONLINE [{ver_tag}]")
-    print(f"   Target: {username}@{hostname}")
-    print("-" * 40)
-    print("Type 'help' for options. Type 'exit' to disconnect.")
-    print("Type 'reload' to refresh commands after editing.")
+    print(f"\n👻 GHOST SHELL ONLINE [{get_version_display()}]")
+    print(f"   Target: {os.getlogin()}@{hostname}\n" + "-"*40)
 
-    # THE CONSOLIDATED LOOP
     while True:
         try:
-            # 1. THE PULSE (Check for real reminders)
-            due = ReminderEngine.check_reminders()
-            for item in due:
-                print(f"\n🔔 [REMINDER] ({item['category'].upper()})")
-                print(f"   > {item['task']['title']}")
-                ReminderEngine.silence(item['category'], item['task']['id'])
-
-            # 2. THE PROMPT
-            cwd = os.getcwd()
-            display_cwd = cwd if len(cwd) <= 30 else "..." + cwd[-30:]
-            prompt = f"xsv@{hostname} [{display_cwd}] > "
+            prompt = f"xsv@{hostname} [{os.getcwd()[-20:]}] > "
             user_input = input(prompt).strip()
-            
             if not user_input: continue
-
-            # 3. INTERNAL ENGINE COMMANDS
-            if user_input == "test-pulse":
-                due = ReminderEngine.check_reminders(test_mode=True)
-                for item in due:
-                    print(f"\n🔔 [PULSE CHECK] {item['task']['title']}")
-                continue
 
             parts = shlex.split(user_input)
             cmd = parts[0].lower()
@@ -90,39 +88,36 @@ def run(args):
                 continue
 
             if cmd == "reload":
-                if cmd_args:
-                    target = cmd_args[0]
-                    found = False
-                    for mod_name in list(sys.modules.keys()):
-                        if mod_name.endswith(f"cmd_{target}"):
-                            try:
-                                importlib.reload(sys.modules[mod_name])
-                                print(f"✅ Reloaded {mod_name}")
-                                found = True
-                            except Exception as e: print(f"❌ Error: {e}")
-                    if not found: print(f"⚠️  Module '{target}' not in memory.")
-                else:
-                    importlib.invalidate_caches()
-                    print("✅ Global Cache Cleared.")
+                # Kill existing thread logic before reloading
+                t.do_run = False
+                importlib.invalidate_caches()
+                print("♻️  System Reloaded. Heartbeat Reseting...")
+                # Restart the thread
+                t = threading.Thread(target=reminder_worker, daemon=True)
+                t.do_run = True
+                t.start()
                 continue
 
-            # 4. SMART ROUTING (System -> Custom -> Library -> OS)
+            # --- SMART ROUTER ---
+            # 1. System
             try:
                 module = importlib.import_module(f"src.commands.cmd_{cmd}")
                 module.run(cmd_args)
                 continue
             except ModuleNotFoundError: pass 
 
+            # 2. Custom
             try:
                 module = importlib.import_module(f"src.commands.custom.cmd_{cmd}")
                 module.run(cmd_args)
                 continue
             except ModuleNotFoundError: pass 
 
+            # 3. Library Fallback
             launcher = cmd_launcher.Launcher()
             if launcher.run(cmd, cmd_args): continue
 
-            # 5. FALLBACK (Host OS)
+            # 4. OS Fallback
             subprocess.run(user_input, shell=True)
 
         except KeyboardInterrupt:

@@ -19,6 +19,8 @@
 - [ ] **`cmd_clean.py`**:
     - [ ] Temp file wiper.
     - [ ] Browser cache cleaner.
+    - [ ] Silent File Transfer(Moving files from "work" computer to this "usb" untraced.  For my best interest, not to be malicious.)
+    - [ ] Script in library for spying or keylogging on kids devices to make sure they aren't doing things we dont want.
 
 ## 🔭 Phase 3: Expansion (Advanced)
 - [ ] **`cmd_gameserver.py`**: Minecraft/Ark installers.
