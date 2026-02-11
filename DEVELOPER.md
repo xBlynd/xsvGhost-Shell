@@ -1,8 +1,8 @@
-# ( The Manual )
+# (The Manual)
+Changes: Added the "Engine Pattern" (Logic vs Command). Added instructions for the Repair Protocol. Explained how to add features safely.
 
-**Changes:** Updated the Routing Logic to show the priority list (System -> Custom -> Library), and added the new "Threading" rule for GUI apps (like the Scare prank).
+Markdown
 
-```markdown
 # 🛠️ xsvCommandCenter Developer Guide
 
 **Target Audience:** Hackers, Developers, and Future Ian.
@@ -14,125 +14,107 @@
 The Ghost Shell (`src/commands/cmd_shell.py`) is an **Infinite Loop** that acts as a traffic controller. It does not "know" commands; it routes them.
 
 ### The Routing Logic (Order of Operations)
-When you type a command (e.g., `ping`), the Shell follows this strict priority:
-
-1.  **Hardcoded Aliases:** Checks `cmd_shell.py` (exit, clear, exec, reload).
-2.  **System Modules:** Checks `src/commands/cmd_ping.py`.
-3.  **Custom Modules:** Checks `src/commands/custom/cmd_ping.py` (Your Playground).
+1.  **Hardcoded Aliases:** Checks `cmd_shell.py` (exit, clear, reload).
+2.  **System Modules:** Checks `src/commands/cmd_*.py`.
+3.  **Custom Modules:** Checks `src/commands/custom/cmd_*.py`.
 4.  **Magic Commands (JSON):** Checks `data/config/commands.json` (Links to `library/`).
-5.  **System Fallback:** If nothing matches, it sends the text to the Host OS.
-
-### The Three Modes of Execution
-| Mode | Syntax | Description | Use Case |
-| :--- | :--- | :--- | :--- |
-| **Smart** | `ping google.com` | Tries Internal -> Magic -> System. | 99% of daily use. |
-| **Forced** | `exec ping ...` | Bypasses xsv entirely. Forces Host OS to run it. | Testing or conflicts. |
-| **Raw** | `cmd` / `sh` | Drops you into the actual OS terminal. | Complex pipes (`|`), heavy admin work. |
+5.  **System Fallback:** Passes to Host OS (cmd/bash).
 
 ---
 
-## 🧩 2. How to Add Features (The New Way)
+## 🧩 2. The "Engine" Pattern
+We separate **Logic** from **Interface**.
+* **The Command (`src/commands/`)**: Parses user arguments (argparse), prints to screen.
+* **The Engine (`src/core/`)**: Does the math, saves files, talks to OS.
+
+**Example:**
+* `cmd_todo.py`: Accepts `--due 10m`.
+* `reminder_engine.py`: Calculates that `10m` = `18:45:00`.
+
+### Why?
+So other tools can use the logic. The `shell` uses the `ReminderEngine` to check background alerts without running the `todo` command.
+
+---
+
+## ⚡ 3. How to Add Features
 
 ### Method A: The Wizard (Recommended)
-Don't write files manually. Use the engine.
 1.  **Type:** `create command mytool`
 2.  **Enter Description:** "My cool tool"
-3.  **Paste Code:** Paste your Python logic.
-4.  **Result:** Auto-generates `src/commands/custom/cmd_mytool.py` with proper boilerplate.
+3.  **Result:** Auto-generates `src/commands/custom/cmd_mytool.py`.
 
 ### Method B: The Library Link (Scripts)
 **Best for:** Running a PowerShell/Bash script you found online.
-1.  Drop the script into `library/` (e.g., `library/matrix.py`).
+1.  Drop script into `library/` (e.g., `library/matrix.py`).
 2.  Open `data/config/commands.json`.
 3.  Add it:
     ```json
-    "matrix": {
-        "type": "script",
-        "path": "library/matrix.py",
-        "description": "The Matrix Effect"
-    }
+    "matrix": { "type": "script", "path": "library/matrix.py" }
     ```
 
 ---
 
-## ⚠️ Coding Guidelines (Critical)
+## ⚠️ Critical Rules
 
-### 1. GUI Tools Must Be Threaded
-If your command opens a window (like `tkinter` or `pygame`), you **MUST** run it in a separate thread, or it will freeze the Shell.
-
-**Bad Code:**
+### 1. Threading is Mandatory for GUI
+If your command opens a window (Tkinter, PyGame), use a thread or you will freeze the shell.
 ```python
-root = tk.Tk()
-root.mainloop() # <--- FREEZES SHELL HERE
+t = threading.Thread(target=my_gui_func, daemon=True)
+t.start()
+2. The Repair Protocol
+If things act weird (old code running, imports failing):
 
-```
+Run repair (Purges __pycache__).
 
-**Good Code:**
+Run reload (Restarts the Heartbeat).
 
-```python
-import threading
-def popup():
-    root = tk.Tk()
-    root.mainloop()
+3. File Paths
+Never hardcode C:\. Always use relative paths:
 
-t = threading.Thread(target=popup, daemon=True)
-t.start() # <--- Shell stays alive
+Python
 
-```
-
-### 2. File Paths
-
-Never hardcode `C:\Users`. Always use the `Path` library relative to `__file__`.
-
-```python
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-
-```
-
-```
+ROOT = Path(__file__).parent.parent.parent
 
 ---
 
-### 3. `TODO.md` ( The Worklist )
-**Changes:** Massive update. Checked off the entire Phase 1. Added the Pivot explanation.
+### 3. `TODO.md` (The Worklist)
+* **Changes:** Checked off Phase 1 & 2 items (Repair, Status, Relative Time). Added new Phase 3 items based on our chat (Journal Viewer, Visual Polish).
 
 ```markdown
 # 📋 Project Worklist
 
 ## 🔥 Phase 1: The Foundation (COMPLETED)
-- [x] **Modular Architecture:** Core (`src/commands`) vs. Custom (`src/commands/custom`).
-- [x] **Dynamic Router:** Auto-loads modules from both locations.
-- [x] **Hardware Detective:** `InfoEngine` scans CPU/RAM.
-- [x] **Ghost Shell:** Interactive terminal (`xsv@HOST >`) with sticky headers.
+- [x] **Modular Architecture:** Core vs. Commands.
+- [x] **Dynamic Router:** Auto-loads modules from `src/commands`.
+- [x] **Ghost Shell:** Interactive terminal with Sticky Headers.
 - [x] **Launchers:** `LAUNCH.bat` (Windows).
-- [x] **The Creator:** `create` command with Dispatcher Pattern (routes to Todo/Journal).
-- [x] **The Editor:** `edit` command (detects VS Code/Notepad).
-- [x] **Hot Reload:** `reload` command updates code instantly.
-- [x] **Safety:** `exec` and `sh` escape hatches.
+- [x] **Self-Healing:** `cmd_repair.py` (Cache wipe & Folder fix).
 
-## 🚧 Phase 2: The Toolbelt (Essential Modules)
-* **Current Focus: The Hacker Kit**
+## 🛠️ Phase 2: The Conscious OS (COMPLETED)
+- [x] **The Heartbeat:** Background thread (`ReminderPulse`) for alerts.
+- [x] **Time Engine:** Relative time parsing (`10m`, `1h`, `30s`).
+- [x] **Notifications:** Cross-platform Toasts (Windows PowerShell / Linux `notify-send`).
+- [x] **Diagnostics:** `cmd_status.py` with real-time integrity streaming.
+- [x] **Hot Reload:** True module reloading in memory.
+
+## 🚧 Phase 3: The Toolbelt (Active Development)
+- [ ] **Journal Viewer:** Read `.md` logs directly in terminal (Pagination/Search).
+- [ ] **Visual Polish:** Color-coded categories (Work=Blue, Home=Green).
 - [ ] **`cmd_dev.py`**:
-    - [ ] Add `install vscode` (Windows/Linux detection).
-    - [ ] Add `install node` / `install python`.
-    - [ ] Add `sync settings` (VS Code extensions).
+    - [ ] `install vscode` (Auto-detect OS).
+    - [ ] `sync settings` (Pull extensions list).
 - [ ] **`cmd_web.py`**:
-    - [ ] Add `serve` (Python `http.server` wrapper).
-    - [ ] Add `project init` (Download HTML5 boilerplate).
+    - [ ] `serve`: Simple HTTP server wrapper.
 - [ ] **`cmd_clean.py`**:
-    - [ ] Temp file wiper.
-    - [ ] Browser cache cleaner.
+    - [ ] Temp file wiper / Browser cache cleaner.
 
-## 🔭 Phase 3: Expansion (Advanced)
-- [ ] **`cmd_gameserver.py`**: Minecraft/Ark installers (Servers go to `data/servers`).
+## 🔭 Phase 4: Expansion (Advanced)
+- [ ] **`cmd_gameserver.py`**: Minecraft/Ark installers.
 - [ ] **`cmd_ai.py`**: Gemini API hook.
-- [ ] **ParrotOS Support**: Verify all scripts on Linux.
-- [ ] **Dashboard**: Future GUI skin.
+- [ ] **ParrotOS Verification**: Test all `notify-send` and path logic on Linux.
+- [ ] **Network Monitor**: Live latency tracker for gaming troubleshooting.
 
-## 📜 Pivot Log (History)
-* *Pivoted `DependencyEngine` into `cmd_dev.py` for granular control.*
-* *Moved `INSTALL_THIS_PC.bat` logic into internal `setup` command.*
-* *Split `src/commands` to protect Core files from User scripts.*
-
-```
-
+## 📜 Pivot Log
+* *Pivoted `DependencyEngine` into `cmd_dev.py`.*
+* *Split `ReminderEngine` to handle both Todo Lists and Quick Timers.*
+* *Moved `desktop.ini` handling to `repair` script and `.gitignore`.*

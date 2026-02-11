@@ -9,5 +9,8 @@ __pycache__/
 !data/config/commands.json
 
 # Google Drive Garbage
-desktop.ini
 [Dd]esktop.ini
+desktop.ini
+Desktop.ini
+Thumbs.db
+.DS_Store
