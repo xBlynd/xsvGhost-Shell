@@ -75,3 +75,48 @@ A persistent, conscious terminal (`xsv@HOST >`).
 3.  **Login** (Secure Shell opens).
 4.  **Command:** `status` (Check system health).
 5.  **Command:** `todo list` (See what's next).
+
+---
+
+## 📚 Complete Documentation
+
+Ghost Shell has comprehensive documentation for developers, users, and operators:
+
+### Core Documentation
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System design, all 11 engines, and boot sequence
+- **[COMMANDS.md](COMMANDS.md)** - Complete command reference for 25+ commands
+- **[API_REFERENCE.md](API_REFERENCE.md)** - REST API endpoints, WebSocket events, and client libraries
+- **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Common issues, solutions, and performance tuning
+
+### Getting Started
+- **[INSTALLATION.md](INSTALLATION.md)** - Installation guide and prerequisites
+- **[SECURITY.md](SECURITY.md)** - Vault encryption and security best practices
+
+### Development
+- **[ENGINE_MANIFEST.md](ENGINE_MANIFEST.md)** - Details on all 11 core engines
+- **[THREAD_HANDOFF.md](THREAD_HANDOFF.md)** - Session summary for multi-thread development
+
+### Quick Links
+- Ghost System Atlas (Design): `docs/Ghost Shell Design Phase/🗺️ The Ghost System Atlas_master-draft.md`
+- GitHub Repository: https://github.com/xBlynd/xsvGhost-Shell
+- Issues & Feature Requests: https://github.com/xBlynd/xsvGhost-Shell/issues
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+1. Review [ARCHITECTURE.md](ARCHITECTURE.md) to understand the system
+2. Check [COMMANDS.md](COMMANDS.md) for command structure
+3. Create a new branch for your feature
+4. Follow the existing code style
+5. Submit a pull request with documentation
+
+## 📄 License
+
+Ghost Shell is licensed under the MIT License. See LICENSE file for details.
+
+---
+
+**Built with ❤️ by xBlynd**
+**Philosophy: "One Stick, Any Computer, Surgical Precision."**
