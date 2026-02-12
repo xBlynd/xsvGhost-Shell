@@ -5,27 +5,42 @@ from core.kernel import GhostKernel
 
 MANIFEST = {
     "name": "ping",
-    "desc": "Network ping stub (Phoenix v0).",
-    "version": "0.1.0-phoenix",
-    "usage": "ping <host>",
+    "desc": "Network ping with jitter stats (Phoenix base).",
+    "version": "0.2.0-phoenix",
+    "usage": "ping <host> [count]",
     "author": "Ghost Core",
 }
 
 
 def run(args: List[str], ghost: GhostKernel) -> None:
     interface = ghost.get_engine("interface")
-    root = ghost.get_engine("root")
+    blackbox = ghost.get_engine("blackbox")
 
     assert interface is not None
-    assert root is not None
+    assert blackbox is not None
 
     if not args:
-        interface.print_error("Usage: ping <host>")
+        interface.print_error("Usage: ping <host> [count]")
         return
 
     host = args[0]
-    interface.print_info(f"Pinging {host} (stub) ...")
-    # Phoenix v0: just run system ping once
-    cmd = ["ping", "-c", "4", host] if ghost.os_type != "windows" else ["ping", "-n", "4", host]
-    res = root.run_subprocess(cmd)
-    print(res.stdout or res.stderr)
+    count = int(args[1]) if len(args) > 1 and args[1].isdigit() else 10
+
+    interface.print_info(f"Pinging {host} x{count} ...")
+
+    stats = blackbox.ping(host, count=count)
+
+    raw = stats.get("raw_output", "").strip()
+    if raw:
+        print(raw)
+
+    samples = stats.get("samples", [])
+    if not samples:
+        interface.print_error("No RTT samples parsed.")
+        return
+
+    print("\n--- Ping Stats ---")
+    print(f"min   : {stats.get('min'):.2f} ms")
+    print(f"max   : {stats.get('max'):.2f} ms")
+    print(f"avg   : {stats.get('avg'):.2f} ms")
+    print(f"jitter: {stats.get('jitter'):.2f} ms")

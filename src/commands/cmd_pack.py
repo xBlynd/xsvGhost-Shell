@@ -7,7 +7,7 @@ from core.kernel import GhostKernel
 MANIFEST = {
     "name": "pack",
     "desc": "Pack a directory into a markdown dump for AI review.",
-    "version": "0.1.0-phoenix",
+    "version": "0.2.0-phoenix",
     "usage": "pack <path>",
     "author": "Ghost Core",
 }
@@ -16,6 +16,7 @@ MANIFEST = {
 def run(args: List[str], ghost: GhostKernel) -> None:
     interface = ghost.get_engine("interface")
     vault = ghost.get_engine("vault")
+    ghost_engine = ghost.get_engine("ghost")
 
     assert interface is not None
     assert vault is not None
@@ -49,4 +50,12 @@ def run(args: List[str], ghost: GhostKernel) -> None:
 
     content = "\n".join(dump)
     out_path = vault.save_text("loot", "ghost_pack", content)
+
+    # Call into GhostEngine hook for future timestomping / stealth
+    if ghost_engine is not None and hasattr(ghost_engine, "timestomp"):
+        try:
+            ghost_engine.timestomp(out_path)
+        except Exception:
+            pass
+
     interface.print_info(f"Pack saved to {out_path}")
