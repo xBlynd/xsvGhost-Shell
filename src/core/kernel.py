@@ -13,19 +13,17 @@ class EngineState(Enum):
 
 
 class GhostKernel:
-    """GhostCoreEngine + orchestrator.
-
-    Responsible for:
-    - Detecting OS / environment
-    - Resolving core paths
-    - Booting and wiring all Engines
-    """
+    """GhostCoreEngine + orchestrator."""
 
     def __init__(self) -> None:
+        # Project root is one level above src/
+        self.src_dir = os.path.dirname(os.path.abspath(__file__))
+        self.root_dir = os.path.dirname(self.src_dir)
+
         self.state = EngineState.OFF
         self.engines: Dict[str, Any] = {}
         self.os_type = platform.system().lower()
-        self.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
         self.data_dir = os.path.join(self.root_dir, "data")
         self.config_dir = os.path.join(self.data_dir, "config")
         self.vault_dir = os.path.join(self.data_dir, "vault")
@@ -64,6 +62,11 @@ class GhostKernel:
         self.engines["blackbox"] = BlackBoxEngine(self)
         self.engines["ghost"] = GhostEngine(self)
         self.engines["sync"] = SyncEngine(self)
+
+        # Preflight: auth + basic checks
+        sec = self.engines["security"]
+        if hasattr(sec, "authenticate"):
+            sec.authenticate()
 
         self.state = EngineState.RUNNING
         print("[GhostCore] All engines mounted. System live.\n")

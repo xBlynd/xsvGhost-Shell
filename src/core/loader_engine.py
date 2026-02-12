@@ -13,7 +13,9 @@ class LoaderEngine:
         self._scan_commands()
 
     def _scan_commands(self) -> None:
-        commands_dir = os.path.join(self.kernel.root_dir, "src", "commands")
+        commands_dir = os.path.join(self.kernel.src_dir, "commands")
+        if not os.path.isdir(commands_dir):
+            return
         for filename in os.listdir(commands_dir):
             if not filename.startswith("cmd_") or not filename.endswith(".py"):
                 continue

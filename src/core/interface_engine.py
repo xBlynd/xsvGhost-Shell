@@ -1,9 +1,12 @@
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 
 class InterfaceEngine:
-    """The Face: banner, theming, I/O helpers."""
+    """The Face: banner, theming, I/O helpers.
+
+    All visual appearance lives here so we can swap it without touching logic.
+    """
 
     def __init__(self, kernel: Any) -> None:
         self.kernel = kernel

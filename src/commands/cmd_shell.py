@@ -15,9 +15,15 @@ MANIFEST = {
 def run(ghost: GhostKernel) -> None:
     interface = ghost.get_engine("interface")
     loader = ghost.get_engine("loader")
+    security = ghost.get_engine("security")
 
     assert interface is not None
     assert loader is not None
+    assert security is not None
+
+    if not getattr(security, "authenticated", False):
+        interface.print_error("Authentication failed. Exiting.")
+        return
 
     interface.print_banner()
 
