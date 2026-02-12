@@ -1,260 +1,91 @@
-"""
-Ghost Kernel - Engine Orchestrator
-Manages engine lifecycle, dependencies, and failure recovery.
-"""
-import sys
-import importlib
-from pathlib import Path
-from queue import Queue
-from threading import Lock, Event
-from enum import Enum
+import os
+import platform
 import json
+from enum import Enum
+from typing import Any, Dict, Optional
 
-ROOT = Path(__file__).parent.parent.parent
 
 class EngineState(Enum):
-    UNLOADED = "unloaded"
-    INITIALIZING = "initializing"
-    READY = "ready"
-    RUNNING = "running"
-    DEGRADED = "degraded"
-    FAILED = "failed"
-    DISABLED = "disabled"
-    SHUTDOWN = "shutdown"
+    OFF = "OFF"
+    BOOTING = "BOOTING"
+    RUNNING = "RUNNING"
+    ERROR = "ERROR"
 
-class CriticalEngineFailure(Exception):
-    """Raised when a critical engine fails - shell cannot continue"""
-    pass
-
-class EngineMessenger:
-    """Thread-safe message passing between engines"""
-    def __init__(self):
-        self.queues = {}
-        self.lock = Lock()
-    
-    def register(self, engine_name):
-        with self.lock:
-            self.queues[engine_name] = Queue()
-    
-    def send(self, target_engine, message):
-        with self.lock:
-            if target_engine in self.queues:
-                self.queues[target_engine].put(message)
-    
-    def receive(self, engine_name, timeout=0.1):
-        try:
-            return self.queues[engine_name].get(timeout=timeout)
-        except:
-            return None
-
-class EngineWrapper:
-    """Wraps an engine with state tracking and health monitoring"""
-    def __init__(self, name, module_path, class_name, critical=True, enabled=True):
-        self.name = name
-        self.module_path = module_path
-        self.class_name = class_name
-        self.critical = critical
-        self.enabled = enabled
-        self.state = EngineState.DISABLED if not enabled else EngineState.UNLOADED
-        self.instance = None
-        self.restart_attempts = 0
-        self.max_restarts = 3
-        self.errors = []
-    
-    def load(self):
-        """Import and initialize the engine"""
-        if not self.enabled:
-            self.state = EngineState.DISABLED
-            return False
-        
-        try:
-            self.state = EngineState.INITIALIZING
-            module = importlib.import_module(self.module_path)
-            engine_class = getattr(module, self.class_name)
-            
-            self.instance = engine_class()
-            if hasattr(self.instance, 'initialize'):
-                self.instance.initialize()
-            
-            self.state = EngineState.RUNNING
-            return True
-        
-        except Exception as e:
-            self.errors.append(str(e))
-            self.state = EngineState.FAILED
-            if self.critical:
-                raise CriticalEngineFailure(f"{self.name} failed: {e}")
-            return False
-    
-    def restart(self):
-        """Attempt to restart a failed engine"""
-        if self.restart_attempts >= self.max_restarts:
-            self.state = EngineState.FAILED
-            return False
-        
-        self.restart_attempts += 1
-        print(f"⚠ Restarting {self.name} (attempt {self.restart_attempts}/{self.max_restarts})")
-        return self.load()
-    
-    def shutdown(self):
-        """Gracefully shutdown the engine"""
-        if self.instance and hasattr(self.instance, 'shutdown'):
-            try:
-                self.instance.shutdown()
-            except Exception as e:
-                print(f"⚠ Error shutting down {self.name}: {e}")
-        self.state = EngineState.SHUTDOWN
 
 class GhostKernel:
+    """GhostCoreEngine + orchestrator.
+
+    Responsible for:
+    - Detecting OS / environment
+    - Resolving core paths
+    - Booting and wiring all Engines
     """
-    The Ghost Shell Kernel
-    Manages engine boot sequence, health monitoring, and graceful shutdown.
-    """
-    
-    # Boot sequence - ORDER MATTERS
-    # Format: (name, module_path, class_name, is_critical, enabled)
-    BOOT_SEQUENCE = [
-        ('ghost_core', 'src.core.ghost_core_engine', 'GhostCoreEngine', True, True),
-        ('security', 'src.core.security_engine', 'SecurityEngine', True, True),
-        ('vault', 'src.core.vault_api', 'VaultAPI', True, True),
-        ('info', 'src.core.info_engine', 'InfoEngine', False, True),
-        ('host', 'src.core.host_engine', 'HostEngine', True, True),
-        ('sync', 'src.core.sync_engine', 'SyncEngine', False, False),  # Disabled
-        ('interface', 'src.core.interface_engine', 'InterfaceEngine', False, False),  # Disabled
-        ('loader', 'src.core.loader_engine', 'LoaderEngine', False, False),  # Disabled
-        ('pulse', 'src.core.pulse_engine', 'PulseEngine', False, False),  # Disabled
-        ('heartbeat', 'src.core.heartbeat_engine', 'HeartbeatEngine', False, True),
-        ('root', 'src.core.root_engine', 'RootEngine', False, False),  # Disabled
-        ('ghost', 'src.core.ghost_engine', 'GhostEngine', False, False),  # Disabled
-        ('blackbox', 'src.core.blackbox_engine', 'BlackBoxEngine', False, False),  # Disabled
-    ]
-    
-    def __init__(self):
-        self.engines = {}
-        self.messenger = EngineMessenger()
-        self.shutdown_event = Event()
-        self.degraded_mode = False
-        self.config = self.load_engine_config()
-    
-    def load_engine_config(self):
-        """Load engine enable/disable config"""
-        config_file = ROOT / 'data' / 'config' / 'engines.json'
-        if config_file.exists():
-            with open(config_file, 'r') as f:
-                return json.load(f)
-        return {}
-    
-    def boot(self):
-        """Initialize all engines in boot sequence"""
-        print("👻 Ghost Shell Kernel Booting...\n")
-        
-        for name, module_path, class_name, critical, enabled in self.BOOT_SEQUENCE:
-            # Check config override
-            if name in self.config:
-                enabled = self.config[name].get('enabled', enabled)
-            
-            wrapper = EngineWrapper(name, module_path, class_name, critical, enabled)
-            self.messenger.register(name)
-            
-            if not enabled:
-                self.engines[name] = wrapper
-                print(f"○ {name.upper()}: disabled (config)")
-                continue
-            
-            try:
-                if wrapper.load():
-                    self.engines[name] = wrapper
-                    print(f"✓ {name.upper()}: {wrapper.state.value}")
-                else:
-                    self.engines[name] = wrapper
-                    if critical:
-                        raise CriticalEngineFailure(f"{name} is critical and failed")
-                    self.degraded_mode = True
-                    print(f"⚠ {name.upper()}: FAILED (non-critical)")
-            
-            except CriticalEngineFailure as e:
-                print(f"\n❌ BOOT FAILURE: {e}")
-                self.emergency_shutdown()
-                raise
-        
-        # Set kernel reference in heartbeat engine
-        if 'heartbeat' in self.engines and self.engines['heartbeat'].instance:
-            self.engines['heartbeat'].instance.kernel = self
-        
-        if self.degraded_mode:
-            print("\n⚠ Ghost Shell running in DEGRADED mode")
-        else:
-            print("\n✓ Ghost Shell fully operational")
-        
-        return True
-    
-    def get_engine(self, name):
-        """Get engine instance by name"""
-        wrapper = self.engines.get(name)
-        return wrapper.instance if wrapper and wrapper.state == EngineState.RUNNING else None
-    
-    def enable_engine(self, name):
-        """Enable and start an engine"""
-        wrapper = self.engines.get(name)
-        if wrapper and wrapper.state == EngineState.DISABLED:
-            wrapper.enabled = True
-            if wrapper.load():
-                print(f"✓ {name} enabled")
-                return True
-        return False
-    
-    def disable_engine(self, name):
-        """Disable and stop an engine"""
-        wrapper = self.engines.get(name)
-        if wrapper and wrapper.state == EngineState.RUNNING:
-            wrapper.shutdown()
-            wrapper.enabled = False
-            wrapper.state = EngineState.DISABLED
-            print(f"○ {name} disabled")
-            return True
-        return False
-    
-    def monitor_health(self):
-        """Check health of all engines"""
-        results = {}
-        for name, wrapper in self.engines.items():
-            results[name] = {
-                'state': wrapper.state.value,
-                'restarts': wrapper.restart_attempts,
-                'errors': len(wrapper.errors),
-                'enabled': wrapper.enabled
-            }
-        return results
-    
-    def emergency_shutdown(self):
-        """Immediate shutdown on critical failure"""
-        print("\n⚠ EMERGENCY SHUTDOWN")
-        self.shutdown()
-    
-    def shutdown(self):
-        """Graceful shutdown - REVERSE boot order"""
-        print("\n👻 Ghost Shell Kernel Shutting Down...")
-        self.shutdown_event.set()
-        
-        # Shutdown in reverse order
-        for name, _, _, _, _ in reversed(self.BOOT_SEQUENCE):
-            if name in self.engines:
-                wrapper = self.engines[name]
-                if wrapper.state == EngineState.RUNNING:
-                    print(f"  Stopping {name}...")
-                    wrapper.shutdown()
-        
-        print("✓ Ghost Shell stopped cleanly")
 
-# Global kernel instance
-kernel = None
+    def __init__(self) -> None:
+        self.state = EngineState.OFF
+        self.engines: Dict[str, Any] = {}
+        self.os_type = platform.system().lower()
+        self.root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.data_dir = os.path.join(self.root_dir, "data")
+        self.config_dir = os.path.join(self.data_dir, "config")
+        self.vault_dir = os.path.join(self.data_dir, "vault")
+        self.logs_dir = os.path.join(self.data_dir, "logs")
 
-def initialize():
-    """Initialize the Ghost Kernel"""
-    global kernel
-    kernel = GhostKernel()
-    return kernel.boot()
+        os.makedirs(self.config_dir, exist_ok=True)
+        os.makedirs(self.vault_dir, exist_ok=True)
+        os.makedirs(self.logs_dir, exist_ok=True)
 
-def get_kernel():
-    """Get the running kernel instance"""
-    return kernel
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+    def boot(self) -> "GhostKernel":
+        self.state = EngineState.BOOTING
+        print("[GhostCore] Boot sequence starting...")
+
+        # Lazy imports to avoid circulars
+        from core.security_engine import SecurityEngine
+        from core.heartbeat_engine import HeartbeatEngine
+        from core.loader_engine import LoaderEngine
+        from core.root_engine import RootEngine
+        from core.pulse_engine import PulseEngine
+        from core.vault_engine import VaultEngine
+        from core.interface_engine import InterfaceEngine
+        from core.blackbox_engine import BlackBoxEngine
+        from core.ghost_engine import GhostEngine
+        from core.sync_engine import SyncEngine
+
+        self.engines["security"] = SecurityEngine(self)
+        self.engines["heartbeat"] = HeartbeatEngine(self)
+        self.engines["loader"] = LoaderEngine(self)
+        self.engines["root"] = RootEngine(self)
+        self.engines["pulse"] = PulseEngine(self)
+        self.engines["vault"] = VaultEngine(self)
+        self.engines["interface"] = InterfaceEngine(self)
+        self.engines["blackbox"] = BlackBoxEngine(self)
+        self.engines["ghost"] = GhostEngine(self)
+        self.engines["sync"] = SyncEngine(self)
+
+        self.state = EngineState.RUNNING
+        print("[GhostCore] All engines mounted. System live.\n")
+        return self
+
+    def get_engine(self, name: str) -> Optional[Any]:
+        return self.engines.get(name)
+
+    # Simple config loader/holder for now
+    def load_settings(self) -> Dict[str, Any]:
+        path = os.path.join(self.config_dir, "settings.json")
+        if not os.path.exists(path):
+            return {}
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+
+
+_kernel: Optional[GhostKernel] = None
+
+
+def initialize() -> GhostKernel:
+    global _kernel
+    if _kernel is None:
+        _kernel = GhostKernel().boot()
+    return _kernel
