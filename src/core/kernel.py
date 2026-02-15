@@ -109,24 +109,36 @@ class GhostKernel:
     """
     The Ghost Shell Kernel
     Manages engine boot sequence, health monitoring, and graceful shutdown.
+    
+    BOOT SEQUENCE - ALIGNED WITH GHOST SYSTEM ATLAS
+    The 11 Canonical Engines (no hallucinations)
     """
     
     # Boot sequence - ORDER MATTERS
     # Format: (name, module_path, class_name, is_critical, enabled)
     BOOT_SEQUENCE = [
-        ('ghost_core', 'src.core.ghost_core_engine', 'GhostCoreEngine', True, True),
+        # PHASE 1: Core Brain (MUST boot first)
+        ('ghost_core', 'src.core.ghost_core', 'GhostCoreEngine', True, True),
+        
+        # PHASE 2: Security & Data (Critical foundation)
         ('security', 'src.core.security_engine', 'SecurityEngine', True, True),
-        ('vault', 'src.core.vault_api', 'VaultAPI', True, True),
-        ('info', 'src.core.info_engine', 'InfoEngine', False, True),
-        ('host', 'src.core.host_engine', 'HostEngine', True, True),
-        ('sync', 'src.core.sync_engine', 'SyncEngine', False, False),  # Disabled
-        ('interface', 'src.core.interface_engine', 'InterfaceEngine', False, False),  # Disabled
-        ('loader', 'src.core.loader_engine', 'LoaderEngine', False, False),  # Disabled
-        ('pulse', 'src.core.pulse_engine', 'PulseEngine', False, False),  # Disabled
+        ('vault', 'src.core.vault_engine', 'VaultEngine', True, True),
+        
+        # PHASE 3: System Control (God Mode)
+        ('root', 'src.core.root_engine', 'RootEngine', True, True),
+        
+        # PHASE 4: Time & Health (Consciousness)
+        ('pulse', 'src.core.pulse_engine', 'PulseEngine', False, True),
         ('heartbeat', 'src.core.heartbeat_engine', 'HeartbeatEngine', False, True),
-        ('root', 'src.core.root_engine', 'RootEngine', False, False),  # Disabled
-        ('ghost', 'src.core.ghost_engine', 'GhostEngine', False, False),  # Disabled
-        ('blackbox', 'src.core.blackbox_engine', 'BlackBoxEngine', False, False),  # Disabled
+        
+        # PHASE 5: Interface & Loading (User-facing)
+        ('loader', 'src.core.loader_engine', 'LoaderEngine', False, False),  # Disabled (WIP)
+        ('interface', 'src.core.interface_engine', 'InterfaceEngine', False, False),  # Disabled (WIP)
+        
+        # PHASE 6: Advanced Operations (Not built yet)
+        ('sync', 'src.core.sync_engine', 'SyncEngine', False, False),  # Disabled
+        ('ghost', 'src.core.ghost_engine', 'GhostEngine', False, False),  # Disabled (stealth)
+        ('blackbox', 'src.core.blackbox_engine', 'BlackBoxEngine', False, False),  # Disabled (network)
     ]
     
     def __init__(self):
