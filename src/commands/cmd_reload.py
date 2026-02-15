@@ -1,29 +1,32 @@
 """
-Reload Command - Hot reload commands without restart
+Command: reload
+Hot reload commands without restarting Ghost Shell.
+Edit a cmd_*.py file and run `reload <name>` to pick up changes instantly.
 """
 
-HELP = """Hot reload commands
-Usage:
-  reload <command>  - Reload specific command
-  reload all        - Reload all commands
-"""
+DESCRIPTION = "Hot reload commands"
+USAGE = "reload <command> | reload all"
+REQUIRED_ROLE = "ADMIN"
+
 
 def execute(kernel, args):
-    """Hot reload commands"""
-    
-    loader = kernel.engines.get('loader')
+    """Hot reload commands."""
+    loader = kernel.get_engine("loader")
     if not loader:
-        return "Loader engine unavailable"
-    
-    if not args:
-        return HELP
-    
-    cmd_name = args[0]
-    
-    if cmd_name == "all":
-        # Rediscover all commands
-        loader._discover_commands()
-        return f"Reloaded all commands ({len(loader.commands)} found)"
-    else:
-        success, msg = loader.reload_command(cmd_name)
-        return msg
+        return "  [!] Loader engine not available"
+
+    target = args.strip().lower()
+
+    if not target:
+        return "  Usage: reload <command_name> | reload all"
+
+    if target == "all":
+        results = loader.reload_all()
+        lines = ["\n  Reload results:"]
+        for name, result in results.items():
+            status = "✓" if result["success"] else "✗"
+            lines.append(f"    {status} {name}: {result['message']}")
+        return "\n".join(lines)
+
+    success, msg = loader.reload_command(target)
+    return f"  {'✓' if success else '✗'} {msg}"

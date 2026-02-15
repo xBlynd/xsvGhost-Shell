@@ -1,98 +1,133 @@
 """
-BlackBox Engine - The Network Operator
-Network diagnostics with jitter analysis
+Engine 04: BlackBox Engine - The Network Operator
+===================================================
+Network interface enumeration, ping with jitter analysis,
+traceroute, and future port scanning.
+
+Compartmentalization:
+- MUST NOT write to Vault (VaultEngine does that)
+- Returns data structures, doesn't format output
 """
 
 import subprocess
 import platform
 import statistics
+import socket
 import re
+import time
+
 
 class BlackBoxEngine:
-    """Network diagnostics and analysis"""
-    
+    """The Network Operator - connectivity and diagnostics."""
+
+    ENGINE_NAME = "blackbox"
+    ENGINE_VERSION = "1.0.0"
+
     def __init__(self, kernel):
         self.kernel = kernel
-        self.name = "blackbox"
-        self.os_type = platform.system()
-    
-    def ping(self, host, count=10):
+        self.os_type = platform.system().upper()
+
+    def ping(self, host, count=4):
         """
-        Ping with jitter variance analysis.
-        This is what makes Ghost Shell's ping better than the OS default.
+        Ping a host with jitter/variance analysis.
+        Returns structured data (not formatted output).
         """
         times = []
-        
-        # Platform-specific ping command
-        if self.os_type == "Windows":
-            cmd = ["ping", "-n", str(count), host]
-        else:
-            cmd = ["ping", "-c", str(count), host]
-        
-        try:
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=count + 5
-            )
-            
-            # Parse ping times
-            if self.os_type == "Windows":
-                pattern = r"time[=<](\d+)ms"
-            else:
-                pattern = r"time=(\d+\.?\d*) ms"
-            
-            matches = re.findall(pattern, result.stdout)
-            times = [float(t) for t in matches]
-            
-        except subprocess.TimeoutExpired:
-            return {"error": "Ping timeout"}
-        except Exception as e:
-            return {"error": str(e)}
-        
+        lost = 0
+
+        for i in range(count):
+            start = time.time()
+            try:
+                if self.os_type == "WINDOWS":
+                    cmd = ["ping", "-n", "1", "-w", "2000", host]
+                else:
+                    cmd = ["ping", "-c", "1", "-W", "2", host]
+
+                result = subprocess.run(
+                    cmd, capture_output=True, text=True, timeout=5
+                )
+
+                # Parse time from output
+                output = result.stdout
+                if self.os_type == "WINDOWS":
+                    match = re.search(r'time[=<](\d+)ms', output)
+                else:
+                    match = re.search(r'time=(\d+\.?\d*)\s*ms', output)
+
+                if match:
+                    times.append(float(match.group(1)))
+                else:
+                    lost += 1
+
+            except (subprocess.TimeoutExpired, Exception):
+                lost += 1
+
         if not times:
-            return {"error": "No response", "raw_output": result.stdout}
-        
-        # Calculate statistics
+            return {
+                "host": host,
+                "status": "UNREACHABLE",
+                "packets_sent": count,
+                "packets_lost": count,
+                "loss_pct": 100.0,
+            }
+
         avg = statistics.mean(times)
-        min_time = min(times)
-        max_time = max(times)
-        
-        # Jitter (standard deviation) - the KEY metric
         jitter = statistics.stdev(times) if len(times) > 1 else 0
-        
-        # Stability assessment
-        if jitter < 5:
-            stability = "EXCELLENT"
-        elif jitter < 20:
-            stability = "GOOD"
-        elif jitter < 50:
-            stability = "FAIR"
-        else:
-            stability = "POOR"
-        
+
         return {
             "host": host,
-            "packets": count,
-            "received": len(times),
-            "loss_percent": ((count - len(times)) / count) * 100,
-            "avg_ms": round(avg, 2),
-            "min_ms": round(min_time, 2),
-            "max_ms": round(max_time, 2),
+            "status": "UNSTABLE" if jitter > 20 else "STABLE",
+            "average_ms": round(avg, 2),
+            "min_ms": round(min(times), 2),
+            "max_ms": round(max(times), 2),
             "jitter_ms": round(jitter, 2),
-            "stability": stability,
-            "times": times
+            "packets_sent": count,
+            "packets_lost": lost,
+            "loss_pct": round((lost / count) * 100, 1),
+            "times": times,
         }
-    
+
     def get_interfaces(self):
-        """Get network interfaces (basic)"""
-        import socket
-        
-        hostname = socket.gethostname()
-        local_ip = socket.gethostbyname(hostname)
-        
-        return {
-            "hostname": hostname,
-            "local_ip": local_ip
-        }
+        """Enumerate network interfaces."""
+        interfaces = []
+        try:
+            hostname = socket.gethostname()
+            local_ip = socket.gethostbyname(hostname)
+            interfaces.append({
+                "name": "primary",
+                "hostname": hostname,
+                "ip": local_ip,
+            })
+        except Exception:
+            pass
+
+        # Get all IPs
+        try:
+            for info in socket.getaddrinfo(socket.gethostname(), None):
+                ip = info[4][0]
+                if ip not in [i.get("ip") for i in interfaces]:
+                    interfaces.append({
+                        "name": f"interface-{len(interfaces)}",
+                        "ip": ip,
+                    })
+        except Exception:
+            pass
+
+        return interfaces
+
+    def check_internet(self):
+        """Quick internet connectivity check."""
+        targets = ["8.8.8.8", "1.1.1.1"]
+        for target in targets:
+            result = self.ping(target, count=1)
+            if result["status"] != "UNREACHABLE":
+                return {"connected": True, "via": target, "latency_ms": result["average_ms"]}
+        return {"connected": False}
+
+    def resolve_dns(self, hostname):
+        """Resolve a hostname to IP."""
+        try:
+            ip = socket.gethostbyname(hostname)
+            return {"hostname": hostname, "ip": ip, "resolved": True}
+        except socket.gaierror as e:
+            return {"hostname": hostname, "resolved": False, "error": str(e)}

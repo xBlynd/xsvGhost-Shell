@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+.env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sensitive data - NEVER commit keys
+data/keys/*.key
+data/keys/keyring.json
+
+# Session data (machine-specific)
+data/session/
+
+# Queue (transient)
+data/queue/
+
+# Encrypted vault
+data/vault/encrypted/
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+desktop.ini

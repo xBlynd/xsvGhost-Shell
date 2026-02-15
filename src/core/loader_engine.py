@@ -1,99 +1,101 @@
 """
-Loader Engine - The Nervous System
-Dynamic command discovery and hot reload
+Engine 10: Loader Engine - The Nervous System
+================================================
+Scans src/commands/ for cmd_*.py files, dynamic import, hot reload.
+
+The Drop-In Pattern:
+- Want a new command? Just create src/commands/cmd_whatever.py
+- It's automatically discovered on next boot
+- Hot reload: edit the file and run `reload whatever` without restarting
+
+Compartmentalization:
+- ONLY manages command loading/reloading
+- Does NOT execute commands (kernel does that)
 """
 
-import os
 import importlib
-import importlib.util
-from pathlib import Path
+import os
+import sys
+
 
 class LoaderEngine:
-    """
-    Discovers and loads commands dynamically.
-    Supports hot reload for live development.
-    """
-    
+    """The Nervous System - dynamic command management."""
+
+    ENGINE_NAME = "loader"
+    ENGINE_VERSION = "1.0.0"
+
     def __init__(self, kernel):
         self.kernel = kernel
-        self.name = "loader"
-        self.commands = {}
-        self.command_modules = {}
-        
-        # Get commands directory
-        core = kernel.engines.get('ghost_core')
-        if core:
-            self.commands_dir = core.get_path("src", "commands")
-        else:
-            self.commands_dir = Path(__file__).parent.parent / "commands"
-        
-        # Discover commands
-        self._discover_commands()
-    
-    def _discover_commands(self):
+        self.root_dir = kernel.root_dir
+        self.commands_dir = os.path.join(self.root_dir, "src", "commands")
+        self._loaded_modules = {}
+
+    def discover_commands(self):
         """
-        Scan commands directory for cmd_*.py files.
-        Drop-in command system - just add a file.
+        Scan src/commands/ for cmd_*.py files and import them.
+        Returns dict of {command_name: module}.
         """
-        if not self.commands_dir.exists():
-            self.commands_dir.mkdir(parents=True, exist_ok=True)
-            return
-        
-        for file in self.commands_dir.glob("cmd_*.py"):
-            cmd_name = file.stem[4:]  # Remove 'cmd_' prefix
-            
-            try:
-                # Import module
-                spec = importlib.util.spec_from_file_location(
-                    f"commands.{file.stem}",
-                    file
-                )
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-                
-                # Store module and command
-                self.command_modules[cmd_name] = module
-                self.commands[cmd_name] = module
-                
-            except Exception as e:
-                print(f"   ⚠ Failed to load {cmd_name}: {e}")
-        
-        # Register with kernel
-        self.kernel.commands = self.commands
-    
+        commands = {}
+
+        if not os.path.exists(self.commands_dir):
+            return commands
+
+        for filename in os.listdir(self.commands_dir):
+            if filename.startswith("cmd_") and filename.endswith(".py"):
+                cmd_name = filename[4:-3]  # Remove 'cmd_' prefix and '.py'
+
+                try:
+                    module_path = f"src.commands.{filename[:-3]}"
+                    module = importlib.import_module(module_path)
+                    commands[cmd_name] = module
+                    self._loaded_modules[cmd_name] = module
+                except Exception as e:
+                    if self.kernel.debug:
+                        print(f"   [!] Failed to load command '{cmd_name}': {e}")
+
+        return commands
+
     def reload_command(self, cmd_name):
         """
-        Hot reload a command.
-        Edit code without restarting shell.
+        Hot reload a single command module.
+        Edit cmd_ping.py and run `reload ping` - no restart needed!
         """
-        if cmd_name not in self.command_modules:
-            return False, "Command not found"
-        
+        if cmd_name not in self._loaded_modules:
+            return False, f"Command '{cmd_name}' not loaded"
+
         try:
-            module = self.command_modules[cmd_name]
+            module = self._loaded_modules[cmd_name]
             importlib.reload(module)
-            self.commands[cmd_name] = module
-            return True, f"Reloaded {cmd_name}"
+            self.kernel.commands[cmd_name] = module
+            return True, f"Command '{cmd_name}' reloaded"
         except Exception as e:
             return False, f"Reload failed: {e}"
-    
-    def get_command_help(self, cmd_name):
-        """Get help text for command"""
-        if cmd_name not in self.commands:
+
+    def reload_all(self):
+        """Reload all loaded commands."""
+        results = {}
+        for cmd_name in list(self._loaded_modules.keys()):
+            success, msg = self.reload_command(cmd_name)
+            results[cmd_name] = {"success": success, "message": msg}
+        return results
+
+    def get_command_info(self, cmd_name):
+        """Get metadata about a command."""
+        if cmd_name not in self._loaded_modules:
             return None
-        
-        module = self.commands[cmd_name]
-        
-        # Try to get HELP attribute
-        if hasattr(module, 'HELP'):
-            return module.HELP
-        
-        # Fallback to docstring
-        if hasattr(module, 'execute'):
-            return module.execute.__doc__ or "No help available"
-        
-        return "No help available"
-    
+
+        module = self._loaded_modules[cmd_name]
+        return {
+            "name": cmd_name,
+            "description": getattr(module, 'DESCRIPTION', 'No description'),
+            "required_role": getattr(module, 'REQUIRED_ROLE', None),
+            "usage": getattr(module, 'USAGE', None),
+            "file": getattr(module, '__file__', 'unknown'),
+        }
+
     def list_commands(self):
-        """Get list of available commands"""
-        return sorted(self.commands.keys())
+        """List all discovered commands with metadata."""
+        return {
+            name: self.get_command_info(name)
+            for name in sorted(self._loaded_modules.keys())
+        }

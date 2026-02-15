@@ -1,0 +1,7 @@
+{
+    "scan": "nmap -sV -Pn {target}",
+    "ports": "netstat -tlnp",
+    "ip": "ipconfig" ,
+    "ll": "ls -la",
+    "cls": "clear"
+}
