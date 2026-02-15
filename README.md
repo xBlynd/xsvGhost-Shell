@@ -1,4 +1,4 @@
-# 👻 GHOST SHELL PHOENIX v7.0
+# 👻 GHOST SHELL PHOENIX v5.0
 
 **One Stick, Any Computer, Surgical Precision**
 
