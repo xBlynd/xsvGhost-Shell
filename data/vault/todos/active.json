@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "task": "Test Legion Mode next",
+    "priority": "normal",
+    "created": "2026-02-12T22:09:22.342209",
+    "completed": false
+  },
+  {
+    "id": 2,
+    "task": "Integrate Cortex AI",
+    "priority": "normal",
+    "created": "2026-02-12T22:09:22.342962",
+    "completed": false
+  }
+]
