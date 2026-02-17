@@ -1,7 +1,7 @@
 {
-  "session_id": "20260214_233912",
-  "boot_time": 1771130352.252848,
-  "version": "6.0.0-phoenix",
+  "session_id": "20260215_072711",
+  "boot_time": 1771158431.7122974,
+  "version": "6.5.0-phoenix",
   "engines_loaded": [
     "ghost_core",
     "security",
@@ -15,12 +15,13 @@
     "ghost",
     "sync",
     "legion",
-    "cortex"
+    "eve"
   ],
   "engines_failed": [],
   "commands_loaded": [
     "ask",
     "clear",
+    "eve",
     "help",
     "journal",
     "keys",

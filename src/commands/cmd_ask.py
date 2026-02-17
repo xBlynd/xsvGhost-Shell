@@ -1,29 +1,31 @@
 """
 Command: ask
-Query the Cortex AI engine.
-Currently a stub - will connect to Ollama/API when Cortex is operational.
+Quick alias - routes to Eve AI engine.
+Shorthand for `eve ask <question>`.
 """
 
-DESCRIPTION = "Ask the AI (Cortex)"
+DESCRIPTION = "Ask the AI (Eve)"
 USAGE = "ask <your question>"
 REQUIRED_ROLE = "GUEST"
 
 
 def execute(kernel, args):
-    """Query the AI."""
+    """Query the AI via Eve."""
     if not args.strip():
         return "  Usage: ask <your question>\n  Example: ask Write me a bash script to backup /home"
 
-    cortex = kernel.get_engine("cortex")
-    if not cortex:
-        return "  [!] Cortex engine not loaded"
+    eve = kernel.get_engine("eve")
+    if not eve:
+        return "  [!] Eve engine not loaded. Use `eve setup` for installation guide."
 
-    result = cortex.ask(args.strip())
+    result = eve.ask(args.strip())
 
     if result.get("response"):
-        return f"\n  Ghost AI:\n  {result['response']}"
-    elif result.get("error"):
-        return f"  [Cortex] {result['error']}"
+        tier = result.get("tier", "?")
+        model = result.get("model", "?")
+        return f"\n  Eve [{tier}/{model}]:\n  {result['response']}"
+    
+    error_msg = f"  [Eve] {result.get('error', 'No response')}"
     if result.get("hint"):
-        return f"  [Cortex] {result['error']}\n  Hint: {result['hint']}"
-    return "  [Cortex] No response"
+        error_msg += f"\n  Hint: {result['hint']}"
+    return error_msg

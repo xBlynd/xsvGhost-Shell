@@ -51,17 +51,18 @@ def execute(kernel, args):
 
 def _show_status(legion):
     status = legion.get_status()
+    mothership = status.get("mothership") or "none"
     lines = [
         f"\n  ┌─ LEGION STATUS ─┐",
-        f"  │ Operational: {'Yes' if status['operational'] else 'No (Stub)'}",
+        f"  │ Operational: {'Yes' if status['operational'] else 'No'}",
+        f"  │ Phase:       {status.get('phase', 'unknown')}",
         f"  │ Node ID:     {status['node_id']}",
         f"  │ Node Type:   {status['node_type']}",
         f"  │ Known Nodes: {status['known_nodes']}",
+        f"  │ Mothership:  {mothership}",
         f"  │ Version:     {status['version']}",
         f"  └────────────────┘",
     ]
-    if not status['operational']:
-        lines.append("  Note: Legion Mode is stubbed. Architecture is ready.")
     return "\n".join(lines)
 
 

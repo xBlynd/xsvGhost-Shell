@@ -27,8 +27,8 @@ class GhostKernel:
     Engines communicate THROUGH the kernel, never directly importing each other.
     """
 
-    VERSION = "6.0.0-phoenix"
-    CODENAME = "Phoenix"
+    VERSION = "6.5.0-phoenix"
+    CODENAME = "Phoenix - Eve Update"
 
     # === BOOT SEQUENCE ===
     # Order matters! Each engine may depend on engines loaded before it.
@@ -45,9 +45,9 @@ class GhostKernel:
         ("blackbox",    "src.core.blackbox_engine",     "BlackBoxEngine"),
         ("ghost",       "src.core.ghost_engine",        "GhostEngine"),
         ("sync",        "src.core.sync_engine",         "SyncEngine"),
-        # --- Future engines (stubs) ---
+        # --- Legion is now Phase 1 operational, Eve replaces Cortex ---
         ("legion",      "src.core.legion_engine",       "LegionEngine"),
-        ("cortex",      "src.core.cortex_engine",       "CortexEngine"),
+        ("eve",         "src.core.eve_engine",          "EveEngine"),
     ]
 
     def __init__(self, root_dir, debug=False):

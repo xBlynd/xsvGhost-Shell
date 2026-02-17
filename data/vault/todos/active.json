@@ -1,3 +1,52 @@
 {
-  "items": []
+  "items": [
+    {
+      "id": 1,
+      "text": "Clone and modify the \"Copy Chat\" in Chromium for a better extension for each AI.",
+      "priority": "normal",
+      "created": "2026-02-15T15:00:57.364981",
+      "completed": null,
+      "done": false
+    },
+    {
+      "id": 2,
+      "text": "Create a todo format that follows the PRD standards for our app Planning / Architechture on any future project.  This \"may also include \"Excalidraw\" it looks like.  May need to consider other plugins, or whatever like this that should maybe live in the project folders?",
+      "priority": "normal",
+      "created": "2026-02-15T15:02:52.868114",
+      "completed": null,
+      "done": false
+    },
+    {
+      "id": 3,
+      "text": "need todo catergories and to really plan out the todo module or whatever this is called to assist in all our goals.  As it said.  Planning is good.  Need to always remember the TODO lists need to be able to be beautful visually when we integrate into a dashboard, GUI, or webapp, or whatever we decide.",
+      "priority": "normal",
+      "created": "2026-02-15T15:04:12.820857",
+      "completed": null,
+      "done": false
+    },
+    {
+      "id": 4,
+      "text": "Need To-do edit, maybe tagging, linking to predessecors and successors.  (Spelling errors)",
+      "priority": "normal",
+      "created": "2026-02-15T15:05:04.057082",
+      "completed": null,
+      "done": false
+    },
+    {
+      "id": 5,
+      "text": "Can we add a spell check in Ghost Shell / OS?",
+      "priority": "normal",
+      "created": "2026-02-15T15:05:20.854496",
+      "completed": null,
+      "done": false
+    },
+    {
+      "id": 6,
+      "text": "need a better way for todo lists to work.",
+      "priority": "normal",
+      "created": "2026-02-15T15:05:43.316509",
+      "completed": null,
+      "done": false
+    }
+  ]
 }

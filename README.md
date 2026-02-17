@@ -1,8 +1,9 @@
-# 👻 Ghost Shell Phoenix v6.0
+# 👻 Ghost Shell Phoenix v6.5
 
 **"One Stick, Any Computer, Surgical Precision"**
 
 A portable Python-based Life Operating System. Modular command shell that works from USB on any machine.
+Now with Eve AI integration and operational Legion mesh networking.
 
 ## Quick Start
 
@@ -12,6 +13,16 @@ python src/main.py --debug  # Verbose boot logging
 ```
 
 On first boot, you'll be prompted to create your God Key (master passphrase).
+
+## AI Setup (Optional)
+
+```bash
+# Install Ollama (https://ollama.ai)
+ollama pull mistral          # 7B model for local AI
+# Then in Ghost Shell:
+eve ask "Hello, are you working?"
+eve status                   # Check AI connectivity
+```
 
 ## Core Commands
 
@@ -26,8 +37,9 @@ On first boot, you'll be prompted to create your God Key (master passphrase).
 | `net`      | Network tools |
 | `sysinfo`  | Host system information |
 | `reload`   | Hot reload commands without restart |
-| `ask`      | Query AI (Cortex - future) |
-| `legion`   | Mesh network management (future) |
+| `ask`      | Quick AI query (routes to Eve) |
+| `eve`      | Full Eve AI interface (ask, status, tier, setup) |
+| `legion`   | Mesh network management |
 
 Any unrecognized command passes through to the host OS shell.
 
@@ -48,8 +60,8 @@ Any unrecognized command passes through to the host OS shell.
 | 09 | Interface | Visual output, themes |
 | 10 | Loader | Dynamic command discovery, hot reload |
 | 11 | Heartbeat | Health monitoring |
-| 12 | Legion | Distributed mesh (stub) |
-| 13 | Cortex | AI integration (stub) |
+| 12 | Legion | Distributed mesh (Phase 1 - HTTP) |
+| 13 | Eve | AI integration (Ollama/Tailscale) |
 
 ## Adding Commands
 

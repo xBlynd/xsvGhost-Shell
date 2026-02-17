@@ -73,6 +73,12 @@ def execute(kernel, args):
         lstatus = legion.get_status()
         lines.append(f"  │ Legion:   {'Online' if lstatus['operational'] else 'Standby'} ({lstatus['known_nodes']} nodes)")
 
+    # Eve AI
+    eve = kernel.get_engine("eve")
+    if eve:
+        estatus = eve.get_status()
+        lines.append(f"  │ Eve AI:   Tier={estatus['active_tier']} Ollama={'✓' if estatus['ollama_local'] else '✗'}")
+
     lines.append("  └─────────────────────────────────────────┘")
 
     return "\n".join(lines)

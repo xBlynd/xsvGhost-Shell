@@ -3,7 +3,7 @@ Engine 12: Legion Engine - The Hive
 ======================================
 Multi-device mesh coordination. One Ghost Shell becomes many.
 
-STATUS: STUB - Architecture defined, not yet operational.
+STATUS: OPERATIONAL (Phase 1 - HTTP messaging via Tailscale)
 
 Architecture Overview:
 ┌─────────────────────────────────────────────────┐
@@ -16,14 +16,14 @@ Architecture Overview:
 │       ▲                                          │
 │       │          ┌──────────┐                    │
 │       └─────────►│ HIVE_MIND│                    │
-│                  │(Cortex AI)│                    │
+│                  │(Eve AI) │                    │
 │                  └──────────┘                    │
 └─────────────────────────────────────────────────┘
 
 Node Types:
 - MASTER:       Command center. Issues orders, sees all nodes.
 - LEGIONNAIRE:  Worker node. Receives and executes commands.
-- HIVE_MIND:    AI node. Runs Cortex engine, responds to queries.
+- HIVE_MIND:    AI node. Runs Eve engine, responds to queries.
 
 Communication:
 - Phase 1: JSON over HTTP (simple, works through Tailscale VPN)
@@ -56,8 +56,8 @@ class LegionEngine:
     """The Hive - multi-device mesh coordination."""
 
     ENGINE_NAME = "legion"
-    ENGINE_VERSION = "0.1.0-stub"
-    OPERATIONAL = False  # Not yet functional
+    ENGINE_VERSION = "1.0.0"
+    OPERATIONAL = True  # Phase 1: HTTP messaging
 
     def __init__(self, kernel):
         self.kernel = kernel
@@ -142,23 +142,103 @@ class LegionEngine:
             "version": self.ENGINE_VERSION,
         }
 
-    def send_message(self, message):
+    def send_message(self, message, target_address=None):
         """
-        Send a message to another node.
-        STUB: Currently just queues for store-and-forward.
+        Send a message to another node via HTTP.
+        Phase 1: Simple JSON POST over Tailscale VPN.
+        Falls back to store-and-forward if unreachable.
         """
-        # Future: HTTP POST to node address
-        # For now: queue via SyncEngine
-        sync = self.kernel.get_engine("sync")
-        if sync:
-            sync.queue_operation("legion_message", message)
-            return {"status": "queued", "message": "Legion not yet operational. Message queued."}
-        return {"status": "failed", "message": "SyncEngine unavailable"}
+        if not target_address:
+            # Look up address from node registry
+            to_node = message.get("to_node")
+            if to_node and to_node != "*" and to_node in self.known_nodes:
+                target_address = self.known_nodes[to_node].get("address")
+
+        if not target_address:
+            # Queue for later via SyncEngine
+            sync = self.kernel.get_engine("sync")
+            if sync:
+                sync.queue_operation("legion_message", message)
+                return {"status": "queued", "reason": "No address for target node"}
+            return {"status": "failed", "reason": "No address and SyncEngine unavailable"}
+
+        # Attempt HTTP delivery
+        try:
+            import urllib.request
+            import json as _json
+
+            url = f"http://{target_address}/ghost/message"
+            data = _json.dumps(message).encode("utf-8")
+            req = urllib.request.Request(
+                url, data=data,
+                headers={"Content-Type": "application/json"},
+            )
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                return {"status": "delivered", "response": resp.read().decode()}
+        except Exception as e:
+            # Delivery failed - queue for retry
+            sync = self.kernel.get_engine("sync")
+            if sync:
+                sync.queue_operation("legion_message", message)
+            return {"status": "queued", "reason": f"Delivery failed: {e}"}
 
     def broadcast(self, message_type, payload):
         """Broadcast a message to all known nodes."""
         msg = self.create_message("*", message_type, payload)
-        return self.send_message(msg)
+        results = {}
+        for nid, info in self.known_nodes.items():
+            if nid == self.node_id:
+                continue  # Don't broadcast to self
+            addr = info.get("address")
+            if addr:
+                results[nid] = self.send_message(msg, addr)
+        return results
+
+    # =========================================================================
+    # REMOTE OPERATIONS
+    # =========================================================================
+
+    def query_remote_eve(self, node_id, prompt):
+        """
+        Query Eve AI on a remote node.
+        Use case: Laptop sends heavy query to desktop mothership.
+        """
+        if node_id not in self.known_nodes:
+            return {"error": f"Unknown node: {node_id}"}
+
+        msg = self.create_message(node_id, "QUERY", {
+            "type": "eve_ask",
+            "prompt": prompt,
+        })
+        address = self.known_nodes[node_id].get("address")
+        return self.send_message(msg, address)
+
+    def execute_remote(self, node_id, command, args=""):
+        """
+        Execute a Ghost Shell command on a remote node.
+        Use case: Fix grandma's PC from your couch.
+        """
+        if node_id not in self.known_nodes:
+            return {"error": f"Unknown node: {node_id}"}
+
+        msg = self.create_message(node_id, "COMMAND", {
+            "command": command,
+            "args": args,
+        })
+        address = self.known_nodes[node_id].get("address")
+        return self.send_message(msg, address)
+
+    def find_mothership(self):
+        """
+        Locate the mothership (most powerful node) in the mesh.
+        Returns node info or None.
+        """
+        for nid, info in self.known_nodes.items():
+            if info.get("node_type") in ("MASTER", "HIVE_MIND"):
+                info_copy = dict(info)
+                info_copy["node_id"] = nid
+                return info_copy
+        return None
 
     # =========================================================================
     # STATUS
@@ -166,11 +246,13 @@ class LegionEngine:
 
     def get_status(self):
         """Return Legion engine status."""
+        mothership = self.find_mothership()
         return {
             "operational": self.OPERATIONAL,
             "node_id": self.node_id,
             "node_type": self.node_type,
             "known_nodes": len(self.known_nodes),
+            "mothership": mothership.get("node_id") if mothership else None,
             "version": self.ENGINE_VERSION,
-            "message": "Legion Mode is stubbed. Architecture ready for implementation.",
+            "phase": "Phase 1 - HTTP messaging via Tailscale",
         }

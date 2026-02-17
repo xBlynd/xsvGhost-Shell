@@ -1,0 +1,29 @@
+# Ghost Shell Phoenix - Docker Compose for Eve AI
+# Run: docker compose up -d
+# Then: docker exec -it ghost_ollama ollama pull mistral
+#
+# Hardware targets (from Gemini architecture session):
+#   Desktop (Mothership): i7-8700K + RTX 2070 → mistral-nemo (12B)
+#   Laptop:               ASUS Vivobook + RTX 3050 → mistral (7B)
+#   USB portable:         Whatever you plug into → phi3 (3.8B)
+
+services:
+  ollama:
+    image: ollama/ollama
+    container_name: ghost_ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    # Uncomment for GPU acceleration:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+volumes:
+  ollama_data:

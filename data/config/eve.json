@@ -1,0 +1,11 @@
+{
+  "active_tier": "auto",
+  "ollama_url": "http://localhost:11434",
+  "mothership_url": null,
+  "cloud_api_key_ref": null,
+  "shadow_loading": true,
+  "cleanup_on_exit": true,
+  "conversation_max_history": 20,
+  "system_prompt": null,
+  "inject_ghost_context": true
+}
