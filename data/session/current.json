@@ -1,6 +1,6 @@
 {
-  "session_id": "20260222_042801",
-  "boot_time": 1771752481.8880548,
+  "session_id": "20260222_093717",
+  "boot_time": 1771771037.6503284,
   "version": "6.5.0-phoenix",
   "engines_loaded": [
     "ghost_core",
@@ -38,7 +38,9 @@
     "status",
     "sync",
     "sysinfo",
-    "todo"
+    "todo",
+    "mcrestore",
+    "mc_backup"
   ],
   "os": "nt",
   "python": "3.14.2 (tags/v3.14.2:df79316, Dec  5 2025, 17:18:21) [MSC v.1944 64 bit (AMD64)]"

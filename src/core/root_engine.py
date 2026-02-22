@@ -35,7 +35,6 @@ class RootEngine:
             "stdout": subprocess.PIPE,
             "stderr": subprocess.PIPE,
             "shell": shell,
-            "timeout": timeout,
         }
 
         # Windows: prevent CMD window popup
