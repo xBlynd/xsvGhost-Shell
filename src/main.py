@@ -43,40 +43,44 @@ def main():
             print("\n[!] Kernel boot failed. Check errors above.")
             sys.exit(1)
 
-        if headless:
-            # Headless mode - kernel is up, engines are loaded
-            # Future: accept commands via stdin pipe or API
-            print("[Ghost] Running in headless mode. Press Ctrl+C to exit.")
-            try:
-                import time
-                while True:
-                    time.sleep(1)
-            except KeyboardInterrupt:
-                pass
-        else:
-            # Check for Rich UI
-            try:
-                from src.tui.login_screen import GhostLoginApp
-                login_app = GhostLoginApp(kernel)
-                result = login_app.run()
-                
-                if result == "shutdown":
-                    print("[Ghost] Shutdown requested.")
-                    sys.exit(0)
-                elif result == "dashboard":
-                    # Run dashboard command manually
-                    kernel.resolve_and_execute("dashboard")
-            except Exception as e:
-                # Fallback to standard boot if UI fails
-                if debug:
-                    import traceback
-                    traceback.print_exc()
-                print(f"\n[!] TUI Login failed ({e}). Falling back to standard shell...")
-
-            # Interactive mode - drop into shell
-            kernel.run_shell()
-
-    except KeyboardInterrupt:
+                if headless:
+                    # Headless mode - kernel is up, engines are loaded
+                    # Future: accept commands via stdin pipe or API
+                    print("[Ghost] Running in headless mode. Press Ctrl+C to exit.")
+                    try:
+                        import time
+                        while True:
+                            time.sleep(1)
+                    except KeyboardInterrupt:
+                        pass
+                else:
+                    # Ghost Shell Pre-Boot Prompt
+                    authenticated = False
+                    while not authenticated:
+                        try:
+                            choice = input("\nGhost Shell v6.5 > ").strip().lower()
+                            
+                            if choice == "login":
+                                from src.tui.inline_login import show_login_challenge
+                                authenticated = show_login_challenge(kernel)
+                            elif choice in ("exit", "quit"):
+                                print("[Ghost] Shutdown requested.")
+                                sys.exit(0)
+                            elif choice == "help":
+                                print("\nAvailable Pre-Boot Commands:")
+                                print("  login      - Initiate authentication sequence")
+                                print("  exit       - Shutdown the system")
+                            elif not choice:
+                                continue
+                            else:
+                                print(f"Unknown command: '{choice}'. Type 'login' to begin.")
+                        except KeyboardInterrupt:
+                            print("\n[Ghost] Shutdown requested.")
+                            sys.exit(0)
+        
+                    # Interactive mode - drop into shell
+                    kernel.run_shell()
+                    except KeyboardInterrupt:
         print("\n[Ghost] Interrupted. Shutting down...")
     except Exception as e:
         print(f"\n[FATAL] Unrecoverable error: {e}")
