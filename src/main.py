@@ -54,6 +54,25 @@ def main():
             except KeyboardInterrupt:
                 pass
         else:
+            # Check for Rich UI
+            try:
+                from src.tui.login_screen import GhostLoginApp
+                login_app = GhostLoginApp(kernel)
+                result = login_app.run()
+                
+                if result == "shutdown":
+                    print("[Ghost] Shutdown requested.")
+                    sys.exit(0)
+                elif result == "dashboard":
+                    # Run dashboard command manually
+                    kernel.resolve_and_execute("dashboard")
+            except Exception as e:
+                # Fallback to standard boot if UI fails
+                if debug:
+                    import traceback
+                    traceback.print_exc()
+                print(f"\n[!] TUI Login failed ({e}). Falling back to standard shell...")
+
             # Interactive mode - drop into shell
             kernel.run_shell()
 
