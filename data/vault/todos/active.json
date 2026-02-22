@@ -47,6 +47,14 @@
       "created": "2026-02-15T15:05:43.316509",
       "completed": null,
       "done": false
+    },
+    {
+      "id": 7,
+      "text": "fix remind variables to accept \"15 min\" \"March 13\"",
+      "priority": "normal",
+      "created": "2026-02-18T01:50:09.449025",
+      "completed": null,
+      "done": false
     }
   ]
 }
