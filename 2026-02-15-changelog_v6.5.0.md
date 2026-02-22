@@ -18,6 +18,19 @@
   - Conversation history tracking
   - Ghost Shell context injection (Eve knows your OS, role, engines)
 
+- `src/tui/entry_screen.py` (145 lines) — The official 'Front Door' of Ghost Shell
+  - Professional, full-screen TUI application (Textual-powered)
+  - Frozen Header: Persistent top section showing ASCII Logo and real-time stats
+  - Multi-Tab interface: LOGIN, GUEST, SETTINGS, and SHUTDOWN
+  - Modern aesthetic: Ghost Green accents with rounded Rich panels
+
+- `src/tui/inline_login.py` (85 lines) — Robust terminal-style fallback login
+  - Provides a clean, "Claude-CLI" inspired login challenge
+  - Used as a fallback if the full-screen TUI is unavailable or errors out
+
+- `src/tui/claude_login.py` (90 lines) — High-fidelity dashboard reference
+  - Reference implementation for future "Claude-Style" shell skins using Rich
+
 - `src/commands/cmd_eve.py` (172 lines) — Full Eve command interface
   - `eve ask <question>` — Query AI with word-wrapped output
   - `eve status` — Show connectivity, tier, Ollama availability
@@ -29,6 +42,12 @@
 - `data/config/eve.json` — Eve configuration template
 
 ### MODIFIED FILES
+- `src/main.py` — Integrated Ghost Phoenix Entry Screen
+  - Decoupled the boot sequence from the interactive shell
+  - Implemented the TUI Entry App launcher with success/fail handling
+  - SECURITY: Explicitly enforced GUEST/GOD roles based on entry choice
+  - Added support for 'Login', 'Guest', and 'Shutdown' results
+
 - `src/core/kernel.py` — Version bumped to 6.5.0-phoenix
   - Boot sequence: `cortex` → `eve` (same slot #13)
   - Codename: "Phoenix - Eve Update"
